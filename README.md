@@ -22,7 +22,13 @@ See [API documentation](http://www.aino.io/api) for detailed information about t
 Before using the agent, it must be configured and copied to directory where ESB can find it.
 After installing and configuring, the agent can be used with `ainoLog` mediator.
 
-### 1. Install the mediator
+
+### 1.1 Add as Maven/Gradle/Ivy dependency
+
+Get the dependency snippet from [here](https://bintray.com/aino-io/maven/agent-wso2-esb/view).
+
+
+### 1.2 Install the mediator
 Copy the `AgentWso2ESB-x.y.jar` to `$WSO2_ESB_HOME/repository/components/dropins/`.
 
 ### 2. Configuring the agent

@@ -98,6 +98,13 @@
             <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
         </pluginRepository>
     </pluginRepositories>
+    <distributionManagement>
+        <repository>
+            <id>bintray-aino-io-maven</id>
+            <name>aino-io-maven</name>
+            <url>https://api.bintray.com/maven/aino-io/maven/agent-wso2-esb/;publish=1</url>
+        </repository>
+    </distributionManagement>
     <dependencies>
         <dependency>
             <groupId>commons-httpclient.wso2</groupId>
