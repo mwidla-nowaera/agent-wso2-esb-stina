@@ -1,0 +1,13 @@
+<ainoConfig>
+  <operations>
+  	<operation key="update" name="Update" />
+  </operations>
+  <applications>
+    <application key="app01" name="TestApp 1" />
+    <application key="app02" name="TestApp 2 & 3" />
+  </applications>
+  <idTypes>
+    <idType key="dataType01" name="Data Type 1" />
+    <idType key="dataType02" name="Data Type 1" />
+  </idTypes>
+</ainoConfig>

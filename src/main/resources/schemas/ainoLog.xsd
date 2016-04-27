@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://ws.apache.org/ns/synapse"
+           xmlns:syn="http://ws.apache.org/ns/synapse" elementFormDefault="qualified">
+    <xs:element name="ainoLog">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="syn:operation" />
+                <xs:element ref="syn:message" />
+                <xs:element ref="syn:ids" minOccurs="0" maxOccurs="unbounded" />
+        
+                <xs:choice>
+                    <xs:element ref="syn:from" minOccurs="0" />
+                    <xs:element ref="syn:to" minOccurs="0" />
+                </xs:choice>
+
+                <xs:element ref="syn:payloadType" minOccurs="0" maxOccurs="1"/>
+                <xs:element ref="syn:property" minOccurs="0" maxOccurs="unbounded" />
+            </xs:sequence>
+      
+            <xs:attribute name="monitored" type="xs:boolean" />
+            <xs:attribute name="status" type="syn:ainoStatus" />
+            <xs:attribute name="category" type="syn:logCategory" />
+            <xs:attribute name="level" type="syn:logLevel" />
+            <xs:attribute name="separator" type="syn:nonEmptyString" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="operation">
+        <xs:complexType>
+            <xs:attribute name="key" type="syn:nonEmptyString" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="payloadType">
+        <xs:complexType>
+            <xs:attribute name="key" type="syn:nonEmptyString" use="required" />
+        </xs:complexType>
+    </xs:element>
+  
+    <xs:element name="message">
+        <xs:complexType>
+            <xs:attribute name="value" type="syn:nonEmptyString" use="required" />
+        </xs:complexType>
+    </xs:element>
+  
+    <xs:element name="ids">
+        <xs:complexType>
+            <xs:attribute name="typeKey" type="syn:nonEmptyString" use="required" />
+            <xs:attribute name="expression" type="syn:nonEmptyString" use="required" />
+        </xs:complexType>
+    </xs:element>
+  
+    <xs:element name="from">
+        <xs:complexType>
+            <xs:attribute name="applicationKey" type="syn:nonEmptyString" use="required" />
+            <xs:attribute name="specifierKey" type="syn:nonEmptyString" use="optional" />
+        </xs:complexType>
+    </xs:element>
+  
+    <xs:element name="to">
+        <xs:complexType>
+            <xs:attribute name="applicationKey" type="syn:nonEmptyString" use="required" />
+            <xs:attribute name="specifierKey" type="syn:nonEmptyString" use="optional" />
+        </xs:complexType>
+    </xs:element>
+  
+    <xs:element name="property">
+        <xs:complexType>
+            <xs:attribute name="name" type="syn:nonEmptyString" use="required" />
+            <xs:attribute name="expression" type="syn:nonEmptyString" />
+            <xs:attribute name="value" type="syn:nonEmptyString" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="nonEmptyString">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="(\s*[^\s]\s*)+"/>
+        </xs:restriction>
+    </xs:simpleType>
+  
+    <xs:simpleType name="ainoStatus">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="success" />
+            <xs:enumeration value="failure" />
+            <xs:enumeration value="unknown" />
+        </xs:restriction>
+    </xs:simpleType>
+  
+    <xs:simpleType name="logLevel">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="custom" />
+            <xs:enumeration value="headers" />
+            <xs:enumeration value="simple" />
+            <xs:enumeration value="full" />
+        </xs:restriction>
+    </xs:simpleType>
+  
+    <xs:simpleType name="logCategory">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="TRACE" />
+            <xs:enumeration value="DEBUG" />
+            <xs:enumeration value="INFO" />
+            <xs:enumeration value="WARN" />
+            <xs:enumeration value="ERROR" />
+            <xs:enumeration value="FATAL" />
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

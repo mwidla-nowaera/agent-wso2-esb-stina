@@ -1,0 +1,148 @@
+/*
+ *  Copyright 2016 Aino.io
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+package io.aino.agents.wso2.test;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.stream.XMLStreamException;
+
+import io.aino.agents.wso2.mediator.AinoMediator;
+import io.aino.agents.core.config.InvalidAgentConfigException;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.xpath.AXIOMXPath;
+import org.apache.synapse.Mediator;
+import org.apache.synapse.mediators.builtin.LogMediator;
+import org.jaxen.JaxenException;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import io.aino.agents.wso2.mediator.factory.AinoMediatorFactory;
+
+@SuppressWarnings("unchecked")
+public class AinoMediatorFactoryTest {
+
+
+    private final AXIOMXPath ainoLogs;
+
+    public AinoMediatorFactoryTest() throws FileNotFoundException, XMLStreamException, JaxenException {
+        ainoLogs = new AXIOMXPath("//syn:ainoLog");
+        ainoLogs.addNamespace("syn", TestUtils.SYNAPSE_NAMESPACE);
+    }
+
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+    }
+
+    @Before
+    public void setUp() throws Exception {
+
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        getFactory().clearAinoLogger();
+    }
+
+    private static final Map<Integer, String> LOG_CATEGORY_MAP = new HashMap<Integer, String>();
+
+    static {
+        LOG_CATEGORY_MAP.put(LogMediator.CATEGORY_DEBUG, "DEBUG");
+        LOG_CATEGORY_MAP.put(LogMediator.CATEGORY_ERROR, "ERROR");
+        LOG_CATEGORY_MAP.put(LogMediator.CATEGORY_FATAL, "FATAL");
+        LOG_CATEGORY_MAP.put(LogMediator.CATEGORY_INFO, "INFO");
+        LOG_CATEGORY_MAP.put(LogMediator.CATEGORY_TRACE, "TRACE");
+        LOG_CATEGORY_MAP.put(LogMediator.CATEGORY_WARN, "WARN");
+    }
+
+    private static final Map<Integer, String> LOG_LEVEL_MAP = new HashMap<Integer, String>();
+
+    static {
+        LOG_LEVEL_MAP.put(LogMediator.CUSTOM, "custom");
+        LOG_LEVEL_MAP.put(LogMediator.FULL, "full");
+        LOG_LEVEL_MAP.put(LogMediator.HEADERS, "headers");
+        LOG_LEVEL_MAP.put(LogMediator.SIMPLE, "simple");
+    }
+
+    private AinoMediatorFactory getFactory() throws FileNotFoundException {
+        return new AinoMediatorFactory(new FileInputStream(new File(AinoMediatorFactoryTest.class
+                .getResource("/conf/ainoLogMediatorConfig.xml").getFile())), new FileInputStream(new File(
+                AinoMediatorFactoryTest.class.getResource("/conf/axis2.xml").getFile())));
+    }
+
+    @Test
+    public void testCreateMediatorWithRequiredElements() throws Exception {
+        OMElement proxy = TestUtils.getDocumentElementFromResourcePath(TestUtils.AINO_PROXY_CONFIG_REQUIRED_ELEMENTS);
+        List<OMElement> ainoConfigs = (List<OMElement>) ainoLogs.evaluate(proxy);
+        AinoMediator m = (AinoMediator) getFactory().createMediator(ainoConfigs.get(0), null);
+        assertNotNull(m);
+    }
+
+    @Test
+    public void testCreateMediatorWithAllElements() throws Exception {
+        OMElement proxy = TestUtils.getDocumentElementFromResourcePath(TestUtils.AINO_PROXY_CONFIG_ALL_ELEMENTS);
+        List<OMElement> ainoConfigs = (List<OMElement>) ainoLogs.evaluate(proxy);
+        AinoMediator m = (AinoMediator) getFactory().createMediator(ainoConfigs.get(0), null);
+        assertNotNull(m);
+    }
+
+    @Test
+    public void testCreateMediatorWithAllElementsAndProperties() throws Exception {
+        OMElement proxy = TestUtils.getDocumentElementFromResourcePath(TestUtils.AINO_PROXY_CONFIG_ALL_ELEMENTS_AND_PROPERTIES);
+        List<OMElement> ainoConfigs = (List<OMElement>) ainoLogs.evaluate(proxy);
+        AinoMediator m = (AinoMediator) getFactory().createMediator(ainoConfigs.get(0), null);
+
+        assertNotNull(m);
+    }
+
+    @Test(expected = InvalidAgentConfigException.class)
+    public void testInvalidAppId() throws Exception {
+        OMElement proxy = TestUtils.getDocumentElementFromResourcePath(TestUtils.AINO_PROXY_CONFIG_INVALID_APP_ID);
+        List<OMElement> ainoConfigs = (List<OMElement>) ainoLogs.evaluate(proxy);
+
+        Mediator m = getFactory().createMediator(ainoConfigs.get(0), null);
+        assertNull(m);
+    }
+
+
+    @Test(expected = InvalidAgentConfigException.class)
+    public void testInvalidFactoryConfig() throws FileNotFoundException {
+        InputStream axisConf = new FileInputStream(new File(
+                TestUtils.class.getResource("/conf/axis2.xml").getFile()));
+
+        InputStream ainoConf = new FileInputStream(new File(
+                TestUtils.class.getResource("/conf/ainoLogMediatorConfigIllegalCharacter.xml").getFile()));
+        assertNull(new AinoMediatorFactory(ainoConf, axisConf));
+    }
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxy xmlns="http://ws.apache.org/ns/synapse"
+    name="AinoLogMediatorTestProxy" statistics="disable"
+    trace="disable" transports="https,http">
+    <target>
+        <inSequence>
+            <ainoLog monitored="true">
+                <operation key="update"/>
+                <message value="success"/>
+            </ainoLog>
+        </inSequence>
+    </target>
+</proxy>
