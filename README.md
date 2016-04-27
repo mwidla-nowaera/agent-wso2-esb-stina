@@ -1,4 +1,7 @@
 # WSO2 ESB mediator for Aino.io
+
+![Build status](https://circleci.com/gh/Aino-io/agent-wso2-esb.svg?style=shield&circle-token=71ead89bc64357e87013b71a2e5bf740d1e7fdbb)
+
 WSO2 ESB mediator implementation of Aino.io logging agent.
 This project depends on Aino.io Java Agent.
 
