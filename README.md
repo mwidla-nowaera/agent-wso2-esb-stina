@@ -35,12 +35,27 @@ Copy the `AgentWso2ESB-x.y.jar` and `AgentJava-x.y.jar` to `$WSO2_ESB_HOME/repos
 ### 2. Configuring the agent
 As WSO2 ESB agent uses [Java agent](https://github.com/Aino-io/agent-java), it must be configured according
 to [Java Agent Configuration](https://github.com/Aino-io/agent-java#configuring-the-agent).
-Java agent configuration should be in `$WSO2_ESB_HOME/repository/conf/ainoLogMediatorConf.xml`, where
+Java agent configuration should be in `$WSO2_ESB_HOME/repository/conf/ainoLogMediatorConfig.xml`, where
 `$WSO2_ESB_HOME` is your WSO2 ESB installation directory.
 
 Additionally, one configured 'application' _*must*_ have key `esb`.
 
-### 3. Send a request to Aino.io:
+### 3. Add Aino.io certificate to WSO2 ESB
+
+##### Export certificate
+
+This instruction is for Chrome browser so if you are using another browser, please google how to export a ssl certificate from a site with your browser.
+
+Open the [site](https://app.aino.io) in the Chrome browser, and then click the small lock icon beside the URL in the address bar. Press `Details` and the developer toolbar opens in the lower part of the browser. Press `View certificate`. In the popup drag from the certificate icon and drop the certificate to the folder `$WSO2_ESB_HOME/repository/resources/security/`. A file named `*.aino.io.cer` was created.
+
+##### Import it to the keystore
+Then import the created *.cer file to the keystore. Check the current keystore password from `$WSO2_ESB_HOME/repository/conf/axis2/axis2.xml` (search for parameter called "truststore"). Then run command and give the password:
+
+```
+keytool -import -alias aino.io   -file *.aino.io.cer -keystore client-truststore.jks
+```
+
+### 4. Send a request to Aino.io:
 
 #### Minimal example (only required fields)
 ```xml
