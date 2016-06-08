@@ -7,6 +7,9 @@ dependencies:
   # Cache maven local repository so that we don't have to get dependencies every time
   cache_directories:
     - ~/.m2/repository
+  
+  override:
+    - mvn clean install
 
 test:
   override:
@@ -19,3 +22,4 @@ test:
     - mkdir -p $CIRCLE_TEST_REPORTS/integration-test/
     - find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;  #JUnit tests
     - find . -type f -regex ".*/target/failsafe-reports/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/integration-test/ \;  #JUnit tests
+    - cp target/AgentWso2Esb*.jar $CIRCLE_ARTIFACTS/ # Store builded jar as an artifact
