@@ -59,7 +59,7 @@ keytool -import -alias aino.io   -file *.aino.io.cer -keystore client-truststore
 
 #### Minimal example (only required fields)
 ```xml
-<ainoLog monitored="true" status="success">
+<ainoLog status="success">
     <to applicationKey="app02" />
 </ainoLog>
 ```
@@ -68,7 +68,7 @@ Only `from` or `to` field is allowed, as the mediator automatically sets the oth
 
 #### Full example
 ```xml
-<ainoLog monitored="true" status="success">
+<ainoLog status="success">
     <operation key="update" />
     <message value="success" />
     <ids expression="//order/orderId" typeKey="dataType01" />

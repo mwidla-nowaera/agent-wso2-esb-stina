@@ -64,7 +64,6 @@ public class AinoMediatorConfigConstants {
 
     public static final String ROOT_TAG_NAME = "ainoLog";
 
-    public static final String MONITORED_ATT_NAME = "monitored";
     public static final String STATUS_ATT_NAME = "status";
 
     public static final String APPLICATION_KEY_ATT_NAME = "applicationKey";
@@ -98,7 +97,6 @@ public class AinoMediatorConfigConstants {
 
     public static final QName ROOT_TAG = new QName(NAMESPACE_STRING, ROOT_TAG_NAME, XMLConstants.DEFAULT_NS_PREFIX);
 
-    public static final QName ATT_MONITORED_Q = new QName(MONITORED_ATT_NAME);
     public static final QName ATT_STATUS_Q = new QName(STATUS_ATT_NAME);
 
     public static final QName ATT_APPLICATION_KEY_Q = new QName(APPLICATION_KEY_ATT_NAME);

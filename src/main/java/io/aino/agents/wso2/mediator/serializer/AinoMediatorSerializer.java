@@ -73,7 +73,6 @@ public class AinoMediatorSerializer extends AbstractMediatorSerializer {
         OMElement logElement = fac.createOMElement(ROOT_TAG_NAME, synNS);
 
         addStatusToElement(ainoMediator, logElement);
-        addMonitoredToElement(ainoMediator, logElement);
         addOperationToElement(ainoMediator, logElement);
         addMessageToElement(ainoMediator, logElement);
         addIdsToElement(ainoMediator, logElement);
@@ -210,16 +209,6 @@ public class AinoMediatorSerializer extends AbstractMediatorSerializer {
         payloadElement.addAttribute(PAYLOAD_TYPE_ATT_NAME, payloadType, null);
 
         logElement.addChild(payloadElement);
-    }
-
-    private void addMonitoredToElement(AinoMediator ainoMediator, OMElement logElement) {
-        Boolean monitored = ainoMediator.getMonitored();
-
-        if(null == monitored){
-            return;
-        }
-
-        logElement.addAttribute(MONITORED_ATT_NAME, monitored.toString(), null);
     }
 
     private void addStatusToElement(AinoMediator ainoMediator, OMElement logElement) {

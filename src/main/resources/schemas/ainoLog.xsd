@@ -18,7 +18,6 @@
                 <xs:element ref="syn:property" minOccurs="0" maxOccurs="unbounded" />
             </xs:sequence>
       
-            <xs:attribute name="monitored" type="xs:boolean" />
             <xs:attribute name="status" type="syn:ainoStatus" />
             <xs:attribute name="category" type="syn:logCategory" />
             <xs:attribute name="level" type="syn:logLevel" />

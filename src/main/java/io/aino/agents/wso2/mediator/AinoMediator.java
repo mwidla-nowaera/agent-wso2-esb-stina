@@ -62,13 +62,11 @@ public class AinoMediator extends AbstractMediator {
     private String payloadType;
     private Enum.Status status;
     private String flowId;
-    private Boolean monitored;
 
     private MediatorProperty messageProperty;
     private MediatorProperty idsProperty;
     private MediatorProperty fromProperty;
     private MediatorProperty toProperty;
-    private MediatorProperty monitoredProperty;
     private MediatorProperty statusProperty;
     private MediatorProperty payloadTypeProperty;
 
@@ -127,7 +125,6 @@ public class AinoMediator extends AbstractMediator {
     private void populateSynapseLogMediatorProperties() throws JaxenException {
 
         logMediator.addProperty(messageProperty);
-        logMediator.addProperty(monitoredProperty);
         logMediator.addProperty(statusProperty);
         logMediator.addProperty(payloadTypeProperty);
 
@@ -146,7 +143,6 @@ public class AinoMediator extends AbstractMediator {
         messageProperty = getMediatorProperty("message", "", null);
         fromProperty = getMediatorProperty("from", "", null);
         toProperty = getMediatorProperty("to", "", null);
-        monitoredProperty = getMediatorProperty("monitored", "", null);
         statusProperty = getMediatorProperty("status", "", null);
         payloadTypeProperty = getMediatorProperty("payloadType", "", null);
     }
@@ -311,7 +307,7 @@ public class AinoMediator extends AbstractMediator {
 
     private Transaction createTransaction(MessageContext context) {
         Transaction transaction = null;
-        if (monitored && ainoAgent.isEnabled()) {
+        if (ainoAgent.isEnabled()) {
             transaction = ainoAgent.newTransaction();
 
             transaction.addMetadata("artifactName", mediatorLocation.getArtifactName());
@@ -723,26 +719,6 @@ public class AinoMediator extends AbstractMediator {
         this.status = status;
 
         statusProperty.setValue(statusString);
-    }
-
-    /**
-     * Gets monitored.
-     *
-     * @return monitored
-     */
-    public Boolean getMonitored() {
-        return monitored;
-    }
-
-    /**
-     * Sets monitored.
-     *
-     * @param monitored monutored
-     */
-    public void setMonitored(Boolean monitored) {
-        this.monitored = monitored;
-
-        monitoredProperty.setValue(Boolean.toString(monitored));
     }
 
     /**

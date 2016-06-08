@@ -47,7 +47,7 @@ public class TestUtils {
     public static String AINO_PROXY_CONFIG_INVALID_APP_ID = "/ainoConfigInvalidAppId.xml";
     public static String AINO_PROXY_CONFIG_INVALID_TO_SPECIFIER_ID = "/ainoConfigInvalidToSpecifier.xml";
     public static String AINO_PROXY_CONFIG_OPERATION_KEYS = "/validAinoConfigOperationKeys.xml";
-    public static String AINO_PROXY_CONFIG_REQUIRED_AND_MONITORED = "/validAinoConfigRequiredAndMonitored.xml";
+    public static String AINO_PROXY_CONFIG_REQUIRED = "/validAinoConfigRequired.xml";
 
     public static AXIOMXPath ainoLogs;
 

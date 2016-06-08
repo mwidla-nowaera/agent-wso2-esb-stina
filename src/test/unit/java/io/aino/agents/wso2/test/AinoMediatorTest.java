@@ -88,8 +88,8 @@ public class AinoMediatorTest {
 
 
     @Test
-    public void mediatorUsesAinoLoggerWhenEnabledAndMonitoredTest() throws Exception {
-        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED_AND_MONITORED);
+    public void mediatorUsesAinoLoggerWhenEnabledTest() throws Exception {
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED);
         Axis2MessageContext ctx = TestUtils.getMockedContext();
 
         when(m.ainoAgent.isEnabled()).thenReturn(true);
@@ -102,7 +102,7 @@ public class AinoMediatorTest {
 
     @Test
     public void mediatorDoesNotUseAinoLoggerWhenNotEnabledTest() throws Exception {
-        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED_AND_MONITORED);
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED);
         Axis2MessageContext ctx = TestUtils.getMockedContext();
 
         when(m.ainoAgent.isEnabled()).thenReturn(false);
@@ -113,20 +113,8 @@ public class AinoMediatorTest {
     }
 
     @Test
-    public void mediatorDoesNotUseAinoLoggerWhenNotMonitoredTest() throws Exception {
-        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED_ELEMENTS);
-        Axis2MessageContext ctx = TestUtils.getMockedContext();
-
-        when(m.ainoAgent.isEnabled()).thenReturn(true);
-
-        m.mediate(ctx);
-
-        verify(m.ainoAgent, never()).addTransaction((Transaction) any());
-    }
-
-    @Test
     public void mediatorBuildsIdListProperlyTest() throws Exception {
-        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED_AND_MONITORED);
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED);
         Axis2MessageContext ctx = TestUtils.getMockedContext();
 
         SynapseXPath idXPath = mock(SynapseXPath.class);
@@ -147,7 +135,7 @@ public class AinoMediatorTest {
 
     @Test
     public void mediatorBuildsIdListFromOneIdTest() throws Exception {
-        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED_AND_MONITORED);
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED);
         Axis2MessageContext ctx = TestUtils.getMockedContext();
 
         SynapseXPath idXPath = mock(SynapseXPath.class);

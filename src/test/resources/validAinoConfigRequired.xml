@@ -4,7 +4,7 @@
     trace="disable" transports="https,http">
     <target>
         <inSequence>
-            <ainoLog monitored="true">
+            <ainoLog>
                 <operation key="update"/>
                 <message value="success"/>
             </ainoLog>

@@ -4,7 +4,7 @@
        trace="disable" transports="https,http">
     <target>
         <inSequence>
-            <ainoLog monitored="true" status="success">
+            <ainoLog status="success">
                 <operation key="update"/>
                 <message value="success"/>
                 <ids expression="//order/orderId" typeKey="dataType01"/>

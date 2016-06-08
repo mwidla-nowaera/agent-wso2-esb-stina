@@ -173,7 +173,6 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
         setMediatorIds(element, mediator);
         setMediatorApplications(element, mediator);
         setMediatorPayloadType(element, mediator);
-        setMediatorMonitored(element, mediator);
 
         mediator.setStatus(element.getAttributeValue(ATT_STATUS_Q));
 
@@ -182,11 +181,6 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
         mediator.setProperties(MediatorPropertyFactory.getMediatorProperties(element));
 
         return mediator;
-    }
-
-    private void setMediatorMonitored(OMElement element, AinoMediator mediator) {
-        boolean isMonitored = extractMonitoringValue(element);
-        mediator.setMonitored(isMonitored);
     }
 
     private void setMediatorPayloadType(OMElement element, AinoMediator mediator) {
@@ -206,16 +200,6 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
 
         mediator.setPayloadType(payloadTypeKey);
 
-    }
-
-    private boolean extractMonitoringValue(OMElement element){
-        String monitoredValue = element.getAttributeValue(ATT_MONITORED_Q);
-
-        if(null == monitoredValue){
-            return false;
-        }
-
-        return BooleanUtils.toBoolean(monitoredValue);
     }
 
     private void setMediatorApplications(OMElement element, AinoMediator mediator) {

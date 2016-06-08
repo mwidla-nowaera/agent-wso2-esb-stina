@@ -57,7 +57,7 @@ public class AinoMediatorSerializerTest {
 
     @Test
     public void serializerSerializesMediatorTest() throws Exception {
-        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED_AND_MONITORED);
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED);
 
         OMElement serializedMediator = serializer.serializeMediator(null, m);
 
