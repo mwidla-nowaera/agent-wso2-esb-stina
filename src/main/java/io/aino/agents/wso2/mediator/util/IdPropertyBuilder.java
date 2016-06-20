@@ -16,9 +16,9 @@
 
 package io.aino.agents.wso2.mediator.util;
 
-import com.google.gson.Gson;
-import io.aino.agents.core.Transaction;
-import io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMText;
@@ -29,9 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.MessageContext;
 import org.jaxen.JaxenException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import io.aino.agents.core.Transaction;
 
 /**
  * Class for evaluation list of {@link Id}s against message context.
@@ -63,13 +61,6 @@ public class IdPropertyBuilder {
         }
 
         populateTransactionIds(context, transaction);
-        generateIdProperty(context, transaction);
-    }
-
-    private void generateIdProperty(MessageContext context, Transaction transaction){
-        Map<String, List<String>> ids = transaction.getIds();
-        String json = new Gson().toJson(ids);
-        context.setProperty(AinoMediatorConfigConstants.AINO_IDS_PROPERTY_NAME, json);
     }
 
     private void populateTransactionIds(MessageContext context, Transaction transaction) {
