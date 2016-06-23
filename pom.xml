@@ -28,16 +28,22 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>io.aino.agents.wso2.mediator.*</Export-Package>
                         <Import-Package>!javax.xml.namespace,
-                            javax.xml.namespace;version=0.0.0,
-                            io.aino.agents.core,
-                            org.apache.commons.logging;version=1.0.4,
-                            org.osgi.framework,
-                            *; resolution:=optional
+                        org.osgi.framework;version="1.0.0",
+                        *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                         <Embed-Dependency>
-                            commons-lang3;groupId=org.apache.commons;version=3.4;inline=false,
-                            gson;groupId=com.google.code.gson;inline=false
+                            commons-lang3;inline=false,
+                            gson;inline=false,
+                            AgentJava;inline=false,
+                            geronimo-activation_1.1_spec;inline=false,
+                            xml-apis;groupId=xml-apis;inline=false,
+                            geronimo-servlet_3.0_spec;inline=false,
+                            commons-logging;inline=false,
+                            avalon-logkit;inline=false,
+                            avalon-framework-api;inline=false,
+                            geronimo-osgi-registry;inline=false,
+                            avalon-logkit;inline=false
                         </Embed-Dependency>
                         <Fragment-Host>synapse-core</Fragment-Host>
                     </instructions>
@@ -188,16 +194,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-client</artifactId>
-            <version>1.8</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.13</version>
-        </dependency>
-        <dependency>
             <groupId>io.aino.agents</groupId>
             <artifactId>AgentJava</artifactId>
             <version>${ainoJavaAgent.version}</version>
@@ -213,10 +209,36 @@
             <artifactId>gson</artifactId>
             <version>2.5</version>
         </dependency>
+        <dependency>
+        	<groupId>org.apache.geronimo.specs</groupId>
+		    <artifactId>geronimo-activation_1.1_spec</artifactId>
+    		<version>1.1</version>
+        </dependency>
+        <dependency>
+        	<groupId>xml-apis</groupId>
+			<artifactId>xml-apis</artifactId>
+			<version>2.0.2</version>
+        </dependency>
+		<dependency>
+		    <groupId>org.apache.avalon.framework</groupId>
+		    <artifactId>avalon-framework-api</artifactId>
+		    <version>4.3.1</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.geronimo.specs</groupId>
+		    <artifactId>geronimo-osgi-registry</artifactId>
+		    <version>1.1</version>
+		</dependency>
+		<dependency>
+		    <groupId>avalon-logkit</groupId>
+		    <artifactId>avalon-logkit</artifactId>
+		    <version>2.1</version>
+		    <scope>runtime</scope>
+		</dependency>
     </dependencies>
     <properties>
         <CApp.type>lib/synapse/mediator</CApp.type>
-        <ainoJavaAgent.version>1.0</ainoJavaAgent.version>
+        <ainoJavaAgent.version>1.1</ainoJavaAgent.version>
     </properties>
 
 </project>
