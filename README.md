@@ -17,7 +17,7 @@ See [API documentation](http://www.aino.io/api) for detailed information about t
 
 ## Technical requirements
 * Oracle Java 6 & 7
-* WSO2 ESB (Tested with ESB 4.7.0 and 4.8.X)
+* WSO2 ESB (Tested with 4.7.0, 4.8.X and 4.9.0)
 
 ## Example usage
 Before using the agent, it must be configured and copied to directory where ESB can find it.
