@@ -3,7 +3,6 @@
 ![Build status](https://circleci.com/gh/Aino-io/agent-wso2-esb.svg?style=shield&circle-token=71ead89bc64357e87013b71a2e5bf740d1e7fdbb)
 
 WSO2 ESB mediator implementation of Aino.io logging agent.
-This project depends on Aino.io Java Agent.
 
 ## What is [Aino.io](http://aino.io) and what does this Agent have to do with it?
 
@@ -16,7 +15,7 @@ This Agent helps to store data about the transactions to Aino.io platform using 
 See [API documentation](http://www.aino.io/api) for detailed information about the API.
 
 ## Technical requirements
-* Oracle Java 6 & 7
+* Oracle Java 7
 * WSO2 ESB (Tested with 4.7.0, 4.8.X and 4.9.0)
 
 ## Example usage
@@ -26,8 +25,6 @@ After installing and configuring, the agent can be used with `ainoLog` mediator.
 ### 1.1 Add as Maven/Gradle/Ivy dependency
 
 Get the dependency snippet from [here](https://bintray.com/aino-io/maven/agent-wso2-esb/view).
-
-Notice that WSO2 Agent depends on the [Java agent](https://github.com/Aino-io/agent-java) so also include that in your depedency list.
 
 ### 1.2 Install the mediator
 Copy the `AgentWso2ESB-x.y.jar` and `AgentJava-x.y.jar` to `$WSO2_ESB_HOME/repository/components/dropins/`.
@@ -87,7 +84,7 @@ All 'keys' must match keys configured in Aino configuration file.
 ## Contributing
 
 ### Technical requirements
-* Java Oracle 6
+* Java 7
 * Maven 3.X
 * WSO2 ESB
 
