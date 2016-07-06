@@ -346,14 +346,15 @@ public class AinoMediator extends AbstractMediator {
      *
      * @param context
      */
-    private void initTransportHeadersMap(MessageContext context) {
+    private Map<String,String> initTransportHeadersMap(MessageContext context) {
         org.apache.axis2.context.MessageContext axis2MessageContext = ((Axis2MessageContext) context).getAxis2MessageContext();
-        Object headers = axis2MessageContext.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
+        Map<String,String> headersMap = (Map<String, String>) axis2MessageContext.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
 
-        if (headers == null) {
-            Map<String, String> headersMap = new HashMap<String, String>();
+        if (headersMap == null) {
+            headersMap = new HashMap<String, String>();
             context.setProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS, headersMap);
         }
+        return headersMap;
     }
 
     private String validateOrSetAinoOperationName(MessageContext context) {
@@ -406,8 +407,7 @@ public class AinoMediator extends AbstractMediator {
 
     @SuppressWarnings("unchecked")
     private Map<String, String> getTransportHeadersMap(MessageContext context) {
-        org.apache.axis2.context.MessageContext axis2MessageContext = ((Axis2MessageContext) context).getAxis2MessageContext();
-        return (Map<String, String>) axis2MessageContext.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
+        return initTransportHeadersMap(context);
     }
 
 
