@@ -21,7 +21,6 @@ import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.AI
 import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.AINO_IDS_PROPERTY_PATH;
 import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.AINO_OPERATION_NAME_PROPERTY_NAME;
 import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.AINO_OPERATION_NAME_PROPERTY_PATH;
-import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.AINO_TIMESTAMP_PROPERTY_PATH;
 import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.OPERATION_TAG_NAME;
 
 import java.lang.reflect.Method;
@@ -140,10 +139,6 @@ public class AinoMediator extends AbstractMediator {
         logMediator.addProperty(getMediatorProperty("artifactType", mediatorLocation.getArtifactType(), null));
         logMediator.addProperty(getMediatorProperty("artifactName", mediatorLocation.getArtifactName(), null));
         logMediator.addProperty(getMediatorProperty("lineNumber", Integer.toString(mediatorLocation.getLineNumber()), null));
-
-        if (ainoAgent.isEnabled()) {
-            logMediator.addProperty(getMediatorProperty("ainoTimestamp", null, AINO_TIMESTAMP_PROPERTY_PATH));
-        }
     }
 
     private void populateAinoMediatorProperties() throws JaxenException {
