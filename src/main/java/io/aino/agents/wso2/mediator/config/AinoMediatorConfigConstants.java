@@ -118,6 +118,7 @@ public class AinoMediatorConfigConstants {
     public static final String AINO_ARTIFACT_TYPE_PROPERTY_NAME = "ainoArtifactType";
     public static final String AINO_ARTIFACT_NAME_PROPERTY_NAME = "ainoArtifactName";
     public static final String AINO_ARTIFACT_LINE_NUMBER_PROPERTY_NAME = "ainoArtifactLineNumber";
+    public static final String FLOW_ID_PROPERTY_NAME = "flowId";
 
     public static final String SYNAPSE_MESSAGE_CONTEXT_PREFIX = "$ctx:";
     public static final String AXIS_TRANSPORT_HEADER_PREFIX = "$trp:";

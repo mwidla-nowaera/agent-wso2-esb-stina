@@ -48,6 +48,7 @@ public class TestUtils {
     public static String AINO_PROXY_CONFIG_INVALID_TO_SPECIFIER_ID = "/ainoConfigInvalidToSpecifier.xml";
     public static String AINO_PROXY_CONFIG_OPERATION_KEYS = "/validAinoConfigOperationKeys.xml";
     public static String AINO_PROXY_CONFIG_REQUIRED = "/validAinoConfigRequired.xml";
+    public static String MESSAGE_ID = "123456789";
 
     public static AXIOMXPath ainoLogs;
 
@@ -87,6 +88,7 @@ public class TestUtils {
         org.apache.synapse.core.axis2.Axis2MessageContext synapseCtx = mock(org.apache.synapse.core.axis2.Axis2MessageContext.class);
         when(synapseCtx.getAxis2MessageContext()).thenReturn(axisCtx);
         when(axisCtx.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS)).thenReturn(new HashMap<String, String>());
+        when(synapseCtx.getAxis2MessageContext().getMessageID()).thenReturn(MESSAGE_ID);
         return synapseCtx;
     }
 
