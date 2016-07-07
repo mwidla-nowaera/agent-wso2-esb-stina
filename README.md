@@ -27,7 +27,7 @@ After installing and configuring, the agent can be used with `ainoLog` mediator.
 Get the dependency snippet from [here](https://bintray.com/aino-io/maven/agent-wso2-esb/view).
 
 ### 1.2 Install the mediator
-Copy the `AgentWso2ESB-x.y.jar` and `AgentJava-x.y.jar` to `$WSO2_ESB_HOME/repository/components/dropins/`.
+Copy the `AgentWso2ESB-x.y.jar` to `$WSO2_ESB_HOME/repository/components/dropins/`.
 
 ### 2. Configuring the agent
 As WSO2 ESB agent uses [Java agent](https://github.com/Aino-io/agent-java), it must be configured according
