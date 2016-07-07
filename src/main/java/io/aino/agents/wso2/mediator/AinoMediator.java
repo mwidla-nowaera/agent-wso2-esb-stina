@@ -16,14 +16,6 @@
 
 package io.aino.agents.wso2.mediator;
 
-import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.AINO_FLOW_ID_PROPERTY_NAME;
-import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.AINO_FLOW_ID_PROPERTY_PATH;
-import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.AINO_IDS_PROPERTY_PATH;
-import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.AINO_OPERATION_NAME_PROPERTY_NAME;
-import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.AINO_OPERATION_NAME_PROPERTY_PATH;
-import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.AINO_TIMESTAMP_PROPERTY_PATH;
-import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.OPERATION_TAG_NAME;
-
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -31,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.synapse.MessageContext;
@@ -48,6 +41,8 @@ import io.aino.agents.wso2.mediator.util.Enum;
 import io.aino.agents.wso2.mediator.util.Id;
 import io.aino.agents.wso2.mediator.util.IdPropertyBuilder;
 import io.aino.agents.wso2.mediator.util.MediatorLocation;
+
+import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.*;
 
 /**
  * Aino.io WSO2 ESB mediator.
@@ -70,7 +65,6 @@ public class AinoMediator extends AbstractMediator {
     private String flowId;
 
     private MediatorProperty messageProperty;
-    private MediatorProperty idsProperty;
     private MediatorProperty fromProperty;
     private MediatorProperty toProperty;
     private MediatorProperty statusProperty;
@@ -135,15 +129,9 @@ public class AinoMediator extends AbstractMediator {
         logMediator.addProperty(statusProperty);
         logMediator.addProperty(payloadTypeProperty);
 
-        logMediator.addProperty(getMediatorProperty(OPERATION_TAG_NAME, null, AINO_OPERATION_NAME_PROPERTY_PATH));
-        logMediator.addProperty(getMediatorProperty("flowId", null, AINO_FLOW_ID_PROPERTY_PATH));
         logMediator.addProperty(getMediatorProperty("artifactType", mediatorLocation.getArtifactType(), null));
         logMediator.addProperty(getMediatorProperty("artifactName", mediatorLocation.getArtifactName(), null));
         logMediator.addProperty(getMediatorProperty("lineNumber", Integer.toString(mediatorLocation.getLineNumber()), null));
-
-        if (ainoAgent.isEnabled()) {
-            logMediator.addProperty(getMediatorProperty("ainoTimestamp", null, AINO_TIMESTAMP_PROPERTY_PATH));
-        }
     }
 
     private void populateAinoMediatorProperties() throws JaxenException {
@@ -220,17 +208,6 @@ public class AinoMediator extends AbstractMediator {
      */
     public void addId(String typeKey, SynapseXPath xPath) {
         idList.add(new Id(typeKey, xPath));
-
-        if(null != this.idsProperty){
-            return;
-        }
-
-        try {
-            idsProperty = getMediatorProperty("ids", null, AINO_IDS_PROPERTY_PATH);
-            logMediator.addProperty(idsProperty);
-        } catch (JaxenException e) {
-            throw new InvalidAgentConfigException("Failed to initialize the AinoMediator at " + mediatorLocation);
-        }
     }
 
     /**
@@ -255,11 +232,6 @@ public class AinoMediator extends AbstractMediator {
 
     @Override
     public boolean mediate(MessageContext context) {
-
-        if (idList.isEmpty()) {
-            logMediator.getProperties().remove(idsProperty);
-        }
-
         initTransportHeadersMap(context);
 
         validateOrSetAinoFlowId(context);
@@ -268,11 +240,37 @@ public class AinoMediator extends AbstractMediator {
         Transaction transaction = createTransaction(context);
         new IdPropertyBuilder(this.idList).buildToContext(context, transaction);
 
+        refreshDynamicLogMediatorProperties();
         logMediator.mediate(context);
 
         processTransaction(context, transaction);
 
         return true;
+    }
+
+    private void refreshDynamicLogMediatorProperties() {
+        refreshDynamicLogMediatorProperty(OPERATION_TAG_NAME, this.operation);
+        refreshDynamicLogMediatorProperty(FLOW_ID_PROPERTY_NAME, this.flowId);
+    }
+
+    private void refreshDynamicLogMediatorProperty(String name, String value) {
+        try {
+            Iterator iter = logMediator.getProperties().iterator();
+            MediatorProperty property = null;
+            while(iter.hasNext()) {
+                Object propertyObject = iter.next();
+                if (((MediatorProperty) propertyObject).getName().equals(name)) {
+                    property = (MediatorProperty) propertyObject;
+                    break;
+                }
+            }
+            if (property != null) {
+                logMediator.getProperties().remove(property);
+            }
+            logMediator.addProperty(getMediatorProperty(name, value, null));
+        } catch (JaxenException e) {
+            throw new InvalidAgentConfigException("Failed to initialize the AinoMediator at " + mediatorLocation);
+        }
     }
 
     private void processTransaction(MessageContext context, Transaction transaction) {
@@ -351,14 +349,15 @@ public class AinoMediator extends AbstractMediator {
      *
      * @param context
      */
-    private void initTransportHeadersMap(MessageContext context) {
+    private Map<String,String> initTransportHeadersMap(MessageContext context) {
         org.apache.axis2.context.MessageContext axis2MessageContext = ((Axis2MessageContext) context).getAxis2MessageContext();
-        Object headers = axis2MessageContext.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
+        Map<String,String> headersMap = (Map<String, String>) axis2MessageContext.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
 
-        if (headers == null) {
-            Map<String, String> headersMap = new HashMap<String, String>();
+        if (headersMap == null) {
+            headersMap = new HashMap<String, String>();
             context.setProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS, headersMap);
         }
+        return headersMap;
     }
 
     private String validateOrSetAinoOperationName(MessageContext context) {
@@ -411,8 +410,7 @@ public class AinoMediator extends AbstractMediator {
 
     @SuppressWarnings("unchecked")
     private Map<String, String> getTransportHeadersMap(MessageContext context) {
-        org.apache.axis2.context.MessageContext axis2MessageContext = ((Axis2MessageContext) context).getAxis2MessageContext();
-        return (Map<String, String>) axis2MessageContext.getProperty(org.apache.axis2.context.MessageContext.TRANSPORT_HEADERS);
+        return initTransportHeadersMap(context);
     }
 
 

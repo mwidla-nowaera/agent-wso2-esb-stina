@@ -115,10 +115,10 @@ public class AinoMediatorConfigConstants {
     public static final String AINO_OPERATION_NAME_PROPERTY_NAME = "ainoOperationName";
     public static final String AINO_IDS_PROPERTY_NAME = "ainoIds";
     public static final String AINO_FLOW_ID_PROPERTY_NAME = "ainoFlowId";
-    public static final String AINO_TIMESTAMP_PROPERTY_NAME = "ainoTimestamp";
     public static final String AINO_ARTIFACT_TYPE_PROPERTY_NAME = "ainoArtifactType";
     public static final String AINO_ARTIFACT_NAME_PROPERTY_NAME = "ainoArtifactName";
     public static final String AINO_ARTIFACT_LINE_NUMBER_PROPERTY_NAME = "ainoArtifactLineNumber";
+    public static final String FLOW_ID_PROPERTY_NAME = "flowId";
 
     public static final String SYNAPSE_MESSAGE_CONTEXT_PREFIX = "$ctx:";
     public static final String AXIS_TRANSPORT_HEADER_PREFIX = "$trp:";
@@ -128,8 +128,6 @@ public class AinoMediatorConfigConstants {
     public static final String AINO_IDS_PROPERTY_PATH = SYNAPSE_MESSAGE_CONTEXT_PREFIX + AINO_IDS_PROPERTY_NAME;
     public static final String AINO_FLOW_ID_PROPERTY_PATH = AXIS_TRANSPORT_HEADER_PREFIX
             + AINO_FLOW_ID_PROPERTY_NAME;
-    public static final String AINO_TIMESTAMP_PROPERTY_PATH = SYNAPSE_MESSAGE_CONTEXT_PREFIX
-            + AINO_TIMESTAMP_PROPERTY_NAME;
     public static final String AINO_ARTIFACT_TYPE_PROPERTY_PATH = SYNAPSE_MESSAGE_CONTEXT_PREFIX
             + AINO_ARTIFACT_TYPE_PROPERTY_NAME;
     public static final String AINO_ARTIFACT_NAME_PROPERTY_PATH = SYNAPSE_MESSAGE_CONTEXT_PREFIX
