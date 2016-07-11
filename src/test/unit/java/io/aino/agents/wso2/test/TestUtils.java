@@ -17,6 +17,7 @@
 package io.aino.agents.wso2.test;
 
 import io.aino.agents.core.Agent;
+import io.aino.agents.core.config.AgentConfig;
 import io.aino.agents.wso2.mediator.AinoMediator;
 import io.aino.agents.wso2.mediator.factory.AinoMediatorFactory;
 import org.apache.axiom.om.OMElement;
@@ -72,7 +73,10 @@ public class TestUtils {
     public static Mediator createMockedAinoLogMediator(AinoMediatorFactory factory, String resource) throws Exception {
         AinoMediator m = (AinoMediator) createAinoLogMediator(factory, resource);
 
+        // mock the agent but use the real config inside mocked agent
+        AgentConfig config = m.ainoAgent.getAgentConfig();
         m.ainoAgent = mock(Agent.class);
+        when(m.ainoAgent.getAgentConfig()).thenReturn(config);
 
         return m;
     }
