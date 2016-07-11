@@ -44,10 +44,12 @@ public class TestUtils {
     public static String AINO_PROXY_CONFIG_REQUIRED_ELEMENTS = "/validAinoConfigRequiredElements.xml";
     public static String AINO_PROXY_CONFIG_ALL_ELEMENTS = "/validAinoConfigAllElements.xml";
     public static String AINO_PROXY_CONFIG_ALL_ELEMENTS_AND_PROPERTIES = "/validAinoConfigAllElementsAndProperties.xml";
-    public static String AINO_PROXY_CONFIG_INVALID_APP_ID = "/ainoConfigInvalidAppId.xml";
-    public static String AINO_PROXY_CONFIG_INVALID_TO_SPECIFIER_ID = "/ainoConfigInvalidToSpecifier.xml";
-    public static String AINO_PROXY_CONFIG_OPERATION_KEYS = "/validAinoConfigOperationKeys.xml";
-    public static String AINO_PROXY_CONFIG_REQUIRED = "/validAinoConfigRequired.xml";
+    public static String AINO_PROXY_CONFIG_INVALID_APPLICATION_KEY = "/ainoConfigInvalidApplicationKey.xml";
+    public static String AINO_PROXY_CONFIG_INVALID_OPERATION_KEY = "/ainoConfigInvalidOperationKey.xml";
+    public static String AINO_PROXY_CONFIG_INVALID_ID_KEY = "/ainoConfigInvalidIdKey.xml";
+    public static String AINO_PROXY_CONFIG_INVALID_PAYLOAD_TYPE_KEY = "/ainoConfigInvalidPayloadTypeKey.xml";
+    public static String AINO_PROXY_MISSING_STATUS = "/ainoConfigInvalidMissingStatus.xml";
+    public static String AINO_PROXY_MISSING_FROM_AND_TO = "/ainoConfigInvalidMissingFromAndTo.xml";
     public static String MESSAGE_ID = "123456789";
 
     public static AXIOMXPath ainoLogs;

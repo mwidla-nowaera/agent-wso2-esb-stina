@@ -125,9 +125,9 @@ public class AinoMediator extends AbstractMediator {
 
     private void populateSynapseLogMediatorProperties() throws JaxenException {
 
-        logMediator.addProperty(messageProperty);
-        logMediator.addProperty(statusProperty);
-        logMediator.addProperty(payloadTypeProperty);
+        //logMediator.addProperty(messageProperty);
+        //logMediator.addProperty(statusProperty);
+        //logMediator.addProperty(payloadTypeProperty);
 
         logMediator.addProperty(getMediatorProperty("artifactType", mediatorLocation.getArtifactType(), null));
         logMediator.addProperty(getMediatorProperty("artifactName", mediatorLocation.getArtifactName(), null));
@@ -254,22 +254,24 @@ public class AinoMediator extends AbstractMediator {
     }
 
     private void refreshDynamicLogMediatorProperty(String name, String value) {
-        try {
-            Iterator iter = logMediator.getProperties().iterator();
-            MediatorProperty property = null;
-            while(iter.hasNext()) {
-                Object propertyObject = iter.next();
-                if (((MediatorProperty) propertyObject).getName().equals(name)) {
-                    property = (MediatorProperty) propertyObject;
-                    break;
+        if (value != null) {
+            try {
+                Iterator iter = logMediator.getProperties().iterator();
+                MediatorProperty property = null;
+                while (iter.hasNext()) {
+                    Object propertyObject = iter.next();
+                    if (((MediatorProperty) propertyObject).getName().equals(name)) {
+                        property = (MediatorProperty) propertyObject;
+                        break;
+                    }
                 }
+                if (property != null) {
+                    logMediator.getProperties().remove(property);
+                }
+                logMediator.addProperty(getMediatorProperty(name, value, null));
+            } catch (JaxenException e) {
+                throw new InvalidAgentConfigException("Failed to initialize the AinoMediator at " + mediatorLocation);
             }
-            if (property != null) {
-                logMediator.getProperties().remove(property);
-            }
-            logMediator.addProperty(getMediatorProperty(name, value, null));
-        } catch (JaxenException e) {
-            throw new InvalidAgentConfigException("Failed to initialize the AinoMediator at " + mediatorLocation);
         }
     }
 
@@ -692,17 +694,12 @@ public class AinoMediator extends AbstractMediator {
      * @throws IllegalArgumentException when status is invalid
      */
     public void setStatus(String statusString) {
-        if (StringUtils.isEmpty(statusString)) {
-            logMediator.getProperties().remove(statusProperty);
-            return;
-        }
-
         Enum.Status status = Enum.Status.getStatus(statusString);
 
         if (status == null) {
             StringBuilder sb = new StringBuilder("AinoMediator status must me one of: ");
             sb.append(Arrays.toString(Enum.Status.values()));
-            throw new IllegalArgumentException(sb.toString());
+            throw new InvalidAgentConfigException(sb.toString());
         }
 
         this.status = status;

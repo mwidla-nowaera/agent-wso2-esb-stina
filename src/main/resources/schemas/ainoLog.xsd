@@ -5,8 +5,8 @@
     <xs:element name="ainoLog">
         <xs:complexType>
             <xs:sequence>
-                <xs:element ref="syn:operation" />
-                <xs:element ref="syn:message" />
+                <xs:element ref="syn:operation" minOccurs="0" />
+                <xs:element ref="syn:message" minOccurs="0" />
                 <xs:element ref="syn:ids" minOccurs="0" maxOccurs="unbounded" />
         
                 <xs:choice>
