@@ -64,7 +64,6 @@ public class AinoMediatorTest {
 
     }
 
-
     private List<OMNode> createXPathResultForIds() {
         List<OMNode> returnList = new ArrayList<OMNode>();
 
@@ -86,10 +85,9 @@ public class AinoMediatorTest {
         return expectedIds;
     }
 
-
     @Test
     public void mediatorUsesAinoLoggerWhenEnabledTest() throws Exception {
-        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED);
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED_ELEMENTS);
         Axis2MessageContext ctx = TestUtils.getMockedContext();
 
         when(m.ainoAgent.isEnabled()).thenReturn(true);
@@ -102,7 +100,7 @@ public class AinoMediatorTest {
 
     @Test
     public void mediatorDoesNotUseAinoLoggerWhenNotEnabledTest() throws Exception {
-        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED);
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED_ELEMENTS);
         Axis2MessageContext ctx = TestUtils.getMockedContext();
 
         when(m.ainoAgent.isEnabled()).thenReturn(false);
@@ -114,7 +112,7 @@ public class AinoMediatorTest {
 
     @Test
     public void mediatorBuildsIdListProperlyTest() throws Exception {
-        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED);
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED_ELEMENTS);
         Axis2MessageContext ctx = TestUtils.getMockedContext();
 
         SynapseXPath idXPath = mock(SynapseXPath.class);
@@ -135,7 +133,7 @@ public class AinoMediatorTest {
 
     @Test
     public void mediatorBuildsIdListFromOneIdTest() throws Exception {
-        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED);
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED_ELEMENTS);
         Axis2MessageContext ctx = TestUtils.getMockedContext();
 
         SynapseXPath idXPath = mock(SynapseXPath.class);

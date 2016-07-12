@@ -17,6 +17,7 @@
 package io.aino.agents.wso2.test;
 
 import io.aino.agents.core.Agent;
+import io.aino.agents.core.config.AgentConfig;
 import io.aino.agents.wso2.mediator.AinoMediator;
 import io.aino.agents.wso2.mediator.factory.AinoMediatorFactory;
 import org.apache.axiom.om.OMElement;
@@ -44,10 +45,12 @@ public class TestUtils {
     public static String AINO_PROXY_CONFIG_REQUIRED_ELEMENTS = "/validAinoConfigRequiredElements.xml";
     public static String AINO_PROXY_CONFIG_ALL_ELEMENTS = "/validAinoConfigAllElements.xml";
     public static String AINO_PROXY_CONFIG_ALL_ELEMENTS_AND_PROPERTIES = "/validAinoConfigAllElementsAndProperties.xml";
-    public static String AINO_PROXY_CONFIG_INVALID_APP_ID = "/ainoConfigInvalidAppId.xml";
-    public static String AINO_PROXY_CONFIG_INVALID_TO_SPECIFIER_ID = "/ainoConfigInvalidToSpecifier.xml";
-    public static String AINO_PROXY_CONFIG_OPERATION_KEYS = "/validAinoConfigOperationKeys.xml";
-    public static String AINO_PROXY_CONFIG_REQUIRED = "/validAinoConfigRequired.xml";
+    public static String AINO_PROXY_CONFIG_INVALID_APPLICATION_KEY = "/ainoConfigInvalidApplicationKey.xml";
+    public static String AINO_PROXY_CONFIG_INVALID_OPERATION_KEY = "/ainoConfigInvalidOperationKey.xml";
+    public static String AINO_PROXY_CONFIG_INVALID_ID_KEY = "/ainoConfigInvalidIdKey.xml";
+    public static String AINO_PROXY_CONFIG_INVALID_PAYLOAD_TYPE_KEY = "/ainoConfigInvalidPayloadTypeKey.xml";
+    public static String AINO_PROXY_MISSING_STATUS = "/ainoConfigInvalidMissingStatus.xml";
+    public static String AINO_PROXY_MISSING_FROM_AND_TO = "/ainoConfigInvalidMissingFromAndTo.xml";
     public static String MESSAGE_ID = "123456789";
 
     public static AXIOMXPath ainoLogs;
@@ -70,7 +73,10 @@ public class TestUtils {
     public static Mediator createMockedAinoLogMediator(AinoMediatorFactory factory, String resource) throws Exception {
         AinoMediator m = (AinoMediator) createAinoLogMediator(factory, resource);
 
+        // mock the agent but use the real config inside mocked agent
+        AgentConfig config = m.ainoAgent.getAgentConfig();
         m.ainoAgent = mock(Agent.class);
+        when(m.ainoAgent.getAgentConfig()).thenReturn(config);
 
         return m;
     }

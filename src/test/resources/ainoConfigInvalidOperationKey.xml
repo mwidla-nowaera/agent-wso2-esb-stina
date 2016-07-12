@@ -4,9 +4,10 @@
     trace="disable" transports="https,http">
     <target>
         <inSequence>
-            <ainoLog>
-                <operation keys="create update delete"/>
-                <message value="Doing stuff..."/>
+            <!-- Default level (custom) -->
+            <ainoLog status="success">
+                <operation key="fail"/>
+                <to applicationKey="app01"/>
             </ainoLog>
         </inSequence>
     </target>

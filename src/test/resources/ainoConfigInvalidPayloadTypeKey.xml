@@ -4,8 +4,11 @@
     trace="disable" transports="https,http">
     <target>
         <inSequence>
+            <!-- Default level (custom) -->
             <ainoLog status="success">
-                <from applicationKey="app01"/>
+                <operation key="update"/>
+                <to applicationKey="app01"/>
+                <payloadType key="fail"/>
             </ainoLog>
         </inSequence>
     </target>

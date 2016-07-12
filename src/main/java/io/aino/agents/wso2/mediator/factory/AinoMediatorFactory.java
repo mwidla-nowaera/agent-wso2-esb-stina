@@ -51,7 +51,6 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.impl.dom.DOOMAbstractFactory;
 import org.apache.axiom.om.xpath.AXIOMXPath;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -168,13 +167,15 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
         mediator.setLevel(element.getAttributeValue(ATT_LEVEL_Q));
         mediator.setSeparator(element.getAttributeValue(ATT_SEPARATOR_Q));
 
+        // required elements
+        mediator.setStatus(element.getAttributeValue(ATT_STATUS_Q));
+        setMediatorApplications(element, mediator);
+
+        // optional elements
         setMediatorOperation(element, mediator);
         setMediatorMessage(element, mediator);
         setMediatorIds(element, mediator);
-        setMediatorApplications(element, mediator);
         setMediatorPayloadType(element, mediator);
-
-        mediator.setStatus(element.getAttributeValue(ATT_STATUS_Q));
 
         mediator.setEsbServerName(esbServerName);
 
@@ -210,6 +211,8 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
             configureApplicationDirection(Enum.ApplicationDirection.FROM, mediator, fromElement);
         } else if (toElement != null) {
             configureApplicationDirection(Enum.ApplicationDirection.TO, mediator, toElement);
+        } else {
+            throw new InvalidAgentConfigException("From or To must be defined for Aino.io log");
         }
     }
 
@@ -256,6 +259,12 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
             OMElement idsElement = idsElements.next();
             String typeKey = idsElement.getAttributeValue(ATT_TYPE_Q);
 
+            if (!ainoAgent.getAgentConfig().getIdTypes().entryExists(typeKey)) {
+                StringBuilder sb = new StringBuilder("An invalid id key has been given to a AinoMediator ");
+                sb.append(IDS_Q).append(" element");
+                throw new InvalidAgentConfigException(sb.toString());
+            }
+
             try {
                 mediator.addId(typeKey, SynapseXPathFactory.getSynapseXPath(idsElement, ATT_EXPRN));
             } catch (JaxenException e) {
@@ -274,17 +283,19 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
 
     private void setMediatorOperation(OMElement element, AinoMediator mediator) {
         OMElement operationElement = element.getFirstChildWithName(OPERATION_Q);
-        String operationKey = operationElement.getAttributeValue(ATT_KEY);
+        if (operationElement != null) {
+            String operationKey = operationElement.getAttributeValue(ATT_KEY);
 
-        if (!ainoAgent.operationExists(operationKey)) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Invalid ").append(ATT_KEY).append(" attribute of ").append(operationKey).append(" at ");
-            sb.append(OPERATION_Q).append(" element.");
-            sb.append("Valid values are specified in the Aino.io configuration file.");
+            if (!ainoAgent.operationExists(operationKey)) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Invalid ").append(ATT_KEY).append(" attribute of ").append(operationKey).append(" at ");
+                sb.append(OPERATION_Q).append(" element.");
+                sb.append("Valid values are specified in the Aino.io configuration file.");
 
-            throw new InvalidAgentConfigException(sb.toString());
-        } else {
-            mediator.setOperation(operationKey);
+                throw new InvalidAgentConfigException(sb.toString());
+            } else {
+                mediator.setOperation(operationKey);
+            }
         }
     }
 

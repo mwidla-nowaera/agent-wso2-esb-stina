@@ -16,10 +16,6 @@
 
 package io.aino.agents.wso2.test;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -44,6 +40,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import io.aino.agents.wso2.mediator.factory.AinoMediatorFactory;
+
+import static org.junit.Assert.*;
 
 @SuppressWarnings("unchecked")
 public class AinoMediatorFactoryTest {
@@ -101,12 +99,28 @@ public class AinoMediatorFactoryTest {
                 AinoMediatorFactoryTest.class.getResource("/conf/axis2.xml").getFile())));
     }
 
+    @Test(expected = InvalidAgentConfigException.class)
+    public void testCreateMediatorWithMissingRequiredStatusElement() throws Exception {
+        OMElement proxy = TestUtils.getDocumentElementFromResourcePath(TestUtils.AINO_PROXY_MISSING_STATUS);
+        List<OMElement> ainoConfigs = (List<OMElement>) ainoLogs.evaluate(proxy);
+        AinoMediator m = (AinoMediator) getFactory().createMediator(ainoConfigs.get(0), null);
+    }
+
+    @Test(expected = InvalidAgentConfigException.class)
+    public void testCreateMediatorWithMissingRequiredFromAndToElement() throws Exception {
+        OMElement proxy = TestUtils.getDocumentElementFromResourcePath(TestUtils.AINO_PROXY_MISSING_FROM_AND_TO);
+        List<OMElement> ainoConfigs = (List<OMElement>) ainoLogs.evaluate(proxy);
+        AinoMediator m = (AinoMediator) getFactory().createMediator(ainoConfigs.get(0), null);
+    }
+
     @Test
     public void testCreateMediatorWithRequiredElements() throws Exception {
         OMElement proxy = TestUtils.getDocumentElementFromResourcePath(TestUtils.AINO_PROXY_CONFIG_REQUIRED_ELEMENTS);
         List<OMElement> ainoConfigs = (List<OMElement>) ainoLogs.evaluate(proxy);
         AinoMediator m = (AinoMediator) getFactory().createMediator(ainoConfigs.get(0), null);
         assertNotNull(m);
+        assertNotNull(m.getStatus());
+        assertNotNull(m.getFromApplication());
     }
 
     @Test
@@ -115,6 +129,12 @@ public class AinoMediatorFactoryTest {
         List<OMElement> ainoConfigs = (List<OMElement>) ainoLogs.evaluate(proxy);
         AinoMediator m = (AinoMediator) getFactory().createMediator(ainoConfigs.get(0), null);
         assertNotNull(m);
+        assertNotNull(m.getStatus());
+        assertNotNull(m.getFromApplication());
+        assertNotNull(m.getOperation());
+        assertNotNull(m.getPayloadType());
+        assertNotNull(m.getIdList());
+        assertNotNull(m.getMessage());
     }
 
     @Test
@@ -124,17 +144,50 @@ public class AinoMediatorFactoryTest {
         AinoMediator m = (AinoMediator) getFactory().createMediator(ainoConfigs.get(0), null);
 
         assertNotNull(m);
+        assertNotNull(m.getStatus());
+        assertNotNull(m.getFromApplication());
+        assertNotNull(m.getOperation());
+        assertNotNull(m.getPayloadType());
+        assertNotNull(m.getIdList());
+        assertNotNull(m.getMessage());
+        assertEquals(m.getProperties().size(), 3);
     }
 
     @Test(expected = InvalidAgentConfigException.class)
-    public void testInvalidAppId() throws Exception {
-        OMElement proxy = TestUtils.getDocumentElementFromResourcePath(TestUtils.AINO_PROXY_CONFIG_INVALID_APP_ID);
+    public void testCreateMediatorWithInvalidApplicationKey() throws Exception {
+        OMElement proxy = TestUtils.getDocumentElementFromResourcePath(TestUtils.AINO_PROXY_CONFIG_INVALID_APPLICATION_KEY);
         List<OMElement> ainoConfigs = (List<OMElement>) ainoLogs.evaluate(proxy);
 
         Mediator m = getFactory().createMediator(ainoConfigs.get(0), null);
         assertNull(m);
     }
 
+    @Test(expected = InvalidAgentConfigException.class)
+    public void testCreateMediatorWithInvalidOperationKey() throws Exception {
+        OMElement proxy = TestUtils.getDocumentElementFromResourcePath(TestUtils.AINO_PROXY_CONFIG_INVALID_OPERATION_KEY);
+        List<OMElement> ainoConfigs = (List<OMElement>) ainoLogs.evaluate(proxy);
+
+        Mediator m = getFactory().createMediator(ainoConfigs.get(0), null);
+        assertNull(m);
+    }
+
+    @Test(expected = InvalidAgentConfigException.class)
+    public void testCreateMediatorWithInvalidIdKey() throws Exception {
+        OMElement proxy = TestUtils.getDocumentElementFromResourcePath(TestUtils.AINO_PROXY_CONFIG_INVALID_ID_KEY);
+        List<OMElement> ainoConfigs = (List<OMElement>) ainoLogs.evaluate(proxy);
+
+        Mediator m = getFactory().createMediator(ainoConfigs.get(0), null);
+        assertNull(m);
+    }
+
+    @Test(expected = InvalidAgentConfigException.class)
+    public void testCreateMediatorWithInvalidPayloadTypeKey() throws Exception {
+        OMElement proxy = TestUtils.getDocumentElementFromResourcePath(TestUtils.AINO_PROXY_CONFIG_INVALID_PAYLOAD_TYPE_KEY);
+        List<OMElement> ainoConfigs = (List<OMElement>) ainoLogs.evaluate(proxy);
+
+        Mediator m = getFactory().createMediator(ainoConfigs.get(0), null);
+        assertNull(m);
+    }
 
     @Test(expected = InvalidAgentConfigException.class)
     public void testInvalidFactoryConfig() throws FileNotFoundException {

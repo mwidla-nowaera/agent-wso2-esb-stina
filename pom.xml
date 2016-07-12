@@ -238,7 +238,7 @@
     </dependencies>
     <properties>
         <CApp.type>lib/synapse/mediator</CApp.type>
-        <ainoJavaAgent.version>1.1</ainoJavaAgent.version>
+        <ainoJavaAgent.version>1.1.1</ainoJavaAgent.version>
     </properties>
 
 </project>

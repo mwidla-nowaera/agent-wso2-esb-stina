@@ -16,6 +16,7 @@
 
 package io.aino.agents.wso2.test;
 
+import io.aino.agents.core.config.InvalidAgentConfigException;
 import io.aino.agents.wso2.mediator.AinoMediator;
 import io.aino.agents.wso2.mediator.factory.AinoMediatorFactory;
 import io.aino.agents.wso2.mediator.serializer.AinoMediatorSerializer;
@@ -55,9 +56,18 @@ public class AinoMediatorSerializerTest {
         serializer = new AinoMediatorSerializer();
     }
 
+    @Test(expected = InvalidAgentConfigException.class)
+    public void serializerFailsToSerializeMediatoWithMissingElementTest() throws Exception {
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_MISSING_STATUS);
+
+        OMElement serializedMediator = serializer.serializeMediator(null, m);
+
+        assertNotNull(serializedMediator);
+    }
+
     @Test
     public void serializerSerializesMediatorTest() throws Exception {
-        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED);
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_REQUIRED_ELEMENTS);
 
         OMElement serializedMediator = serializer.serializeMediator(null, m);
 

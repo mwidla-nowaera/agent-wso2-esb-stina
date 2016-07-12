@@ -64,12 +64,6 @@ public class AinoMediator extends AbstractMediator {
     private Enum.Status status;
     private String flowId;
 
-    private MediatorProperty messageProperty;
-    private MediatorProperty fromProperty;
-    private MediatorProperty toProperty;
-    private MediatorProperty statusProperty;
-    private MediatorProperty payloadTypeProperty;
-
     private MediatorLocation mediatorLocation;
 
     private List<MediatorProperty> customProperties;
@@ -116,7 +110,6 @@ public class AinoMediator extends AbstractMediator {
 
     private void initLogMediator() {
         try {
-            populateAinoMediatorProperties();
             populateSynapseLogMediatorProperties();
         } catch (JaxenException e) {
             throw new InvalidAgentConfigException("Failed to initialize the AinoMediator at " + this.mediatorLocation);
@@ -124,22 +117,9 @@ public class AinoMediator extends AbstractMediator {
     }
 
     private void populateSynapseLogMediatorProperties() throws JaxenException {
-
-        logMediator.addProperty(messageProperty);
-        logMediator.addProperty(statusProperty);
-        logMediator.addProperty(payloadTypeProperty);
-
         logMediator.addProperty(getMediatorProperty("artifactType", mediatorLocation.getArtifactType(), null));
         logMediator.addProperty(getMediatorProperty("artifactName", mediatorLocation.getArtifactName(), null));
         logMediator.addProperty(getMediatorProperty("lineNumber", Integer.toString(mediatorLocation.getLineNumber()), null));
-    }
-
-    private void populateAinoMediatorProperties() throws JaxenException {
-        messageProperty = getMediatorProperty("message", "", null);
-        fromProperty = getMediatorProperty("from", "", null);
-        toProperty = getMediatorProperty("to", "", null);
-        statusProperty = getMediatorProperty("status", "", null);
-        payloadTypeProperty = getMediatorProperty("payloadType", "", null);
     }
 
     private static MediatorProperty getMediatorProperty(String name, String value, String expression)
@@ -240,7 +220,7 @@ public class AinoMediator extends AbstractMediator {
         Transaction transaction = createTransaction(context);
         new IdPropertyBuilder(this.idList).buildToContext(context, transaction);
 
-        refreshDynamicLogMediatorProperties();
+        refreshMediatorProperties();
         logMediator.mediate(context);
 
         processTransaction(context, transaction);
@@ -248,28 +228,35 @@ public class AinoMediator extends AbstractMediator {
         return true;
     }
 
-    private void refreshDynamicLogMediatorProperties() {
-        refreshDynamicLogMediatorProperty(OPERATION_TAG_NAME, this.operation);
-        refreshDynamicLogMediatorProperty(FLOW_ID_PROPERTY_NAME, this.flowId);
+    private void refreshMediatorProperties() {
+        refreshMediatorProperty(OPERATION_TAG_NAME, ainoAgent.getAgentConfig().getOperations().getEntry(this.operation));
+        refreshMediatorProperty(FLOW_ID_PROPERTY_NAME, this.flowId);
+        refreshMediatorProperty(MESSAGE_TAG_NAME, this.message);
+        refreshMediatorProperty(STATUS_ATT_NAME, this.status.name());
+        refreshMediatorProperty(PAYLOAD_TAG_NAME, ainoAgent.getAgentConfig().getPayloadTypes().getEntry(this.payloadType));
+        refreshMediatorProperty(FROM_TAG_NAME, ainoAgent.getAgentConfig().getApplications().getEntry(fromApplication));
+        refreshMediatorProperty(TO_TAG_NAME, ainoAgent.getAgentConfig().getApplications().getEntry(toApplication));
     }
 
-    private void refreshDynamicLogMediatorProperty(String name, String value) {
-        try {
-            Iterator iter = logMediator.getProperties().iterator();
-            MediatorProperty property = null;
-            while(iter.hasNext()) {
-                Object propertyObject = iter.next();
-                if (((MediatorProperty) propertyObject).getName().equals(name)) {
-                    property = (MediatorProperty) propertyObject;
-                    break;
+    private void refreshMediatorProperty(String name, String value) {
+        if (value != null) {
+            try {
+                Iterator iter = logMediator.getProperties().iterator();
+                MediatorProperty property = null;
+                while (iter.hasNext()) {
+                    Object propertyObject = iter.next();
+                    if (((MediatorProperty) propertyObject).getName().equals(name)) {
+                        property = (MediatorProperty) propertyObject;
+                        break;
+                    }
                 }
+                if (property != null) {
+                    logMediator.getProperties().remove(property);
+                }
+                logMediator.addProperty(getMediatorProperty(name, value, null));
+            } catch (JaxenException e) {
+                throw new InvalidAgentConfigException("Failed to initialize the AinoMediator at " + mediatorLocation);
             }
-            if (property != null) {
-                logMediator.getProperties().remove(property);
-            }
-            logMediator.addProperty(getMediatorProperty(name, value, null));
-        } catch (JaxenException e) {
-            throw new InvalidAgentConfigException("Failed to initialize the AinoMediator at " + mediatorLocation);
         }
     }
 
@@ -588,8 +575,6 @@ public class AinoMediator extends AbstractMediator {
      */
     public void setMessage(String message) {
         this.message = message;
-
-        messageProperty.setValue(message);
     }
 
     /**
@@ -626,9 +611,6 @@ public class AinoMediator extends AbstractMediator {
      */
     public void setFromApplication(String fromApplication) {
         this.fromApplication = fromApplication;
-
-        fromProperty.setValue(ainoAgent.getAgentConfig().getApplications().getEntry(fromApplication));
-        logMediator.addProperty(fromProperty);
     }
 
     /**
@@ -647,9 +629,6 @@ public class AinoMediator extends AbstractMediator {
      */
     public void setToApplication(String toApplication) {
         this.toApplication = toApplication;
-
-        toProperty.setValue(ainoAgent.getAgentConfig().getApplications().getEntry(toApplication));
-        logMediator.addProperty(toProperty);
     }
 
     /**
@@ -659,8 +638,6 @@ public class AinoMediator extends AbstractMediator {
      */
     public void setPayloadType(String payloadTypeKey) {
         this.payloadType = payloadTypeKey;
-
-        payloadTypeProperty.setValue(ainoAgent.getAgentConfig().getPayloadTypes().getEntry(payloadTypeKey));
     }
 
     /**
@@ -692,22 +669,15 @@ public class AinoMediator extends AbstractMediator {
      * @throws IllegalArgumentException when status is invalid
      */
     public void setStatus(String statusString) {
-        if (StringUtils.isEmpty(statusString)) {
-            logMediator.getProperties().remove(statusProperty);
-            return;
-        }
-
         Enum.Status status = Enum.Status.getStatus(statusString);
 
         if (status == null) {
             StringBuilder sb = new StringBuilder("AinoMediator status must me one of: ");
             sb.append(Arrays.toString(Enum.Status.values()));
-            throw new IllegalArgumentException(sb.toString());
+            throw new InvalidAgentConfigException(sb.toString());
         }
 
         this.status = status;
-
-        statusProperty.setValue(statusString);
     }
 
     /**

@@ -5,10 +5,10 @@
     <target>
         <inSequence>
             <!-- Default level (custom) -->
-            <ainoLog>
+            <ainoLog status="success">
                 <operation key="update"/>
-                <message value="success"/>
-                <to applicationKey="invalid"/>
+                <ids expression="//order/orderId" typeKey="fail"/>
+                <to applicationKey="app01"/>
             </ainoLog>
         </inSequence>
     </target>

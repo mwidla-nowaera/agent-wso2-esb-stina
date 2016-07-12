@@ -180,6 +180,11 @@ public class AinoMediatorSerializer extends AbstractMediatorSerializer {
     }
 
     private void addMessageToElement(AinoMediator ainoMediator, OMElement logElement) {
+
+        if(null == ainoMediator.getMessage()){
+            return;
+        }
+
         OMElement messageElement = fac.createOMElement(MESSAGE_TAG_NAME, synNS);
         messageElement.addAttribute(ATT_VALUE_Q.getLocalPart(), ainoMediator.getMessage(), null);
         logElement.addChild(messageElement);

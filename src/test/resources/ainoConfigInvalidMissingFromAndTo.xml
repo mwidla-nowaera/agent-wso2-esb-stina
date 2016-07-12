@@ -4,9 +4,13 @@
     trace="disable" transports="https,http">
     <target>
         <inSequence>
-            <ainoLog>
+            <ainoLog status="success">
                 <operation key="update"/>
                 <message value="success"/>
+                <ids expression="//order/orderId" typeKey="dataType01"/>
+                <ids expression="//order/customerId" typeKey="dataType02"/>
+                <payloadType key="subInterface01" />
+                <property expression="//someXpath" name="someProp"/>
             </ainoLog>
         </inSequence>
     </target>
