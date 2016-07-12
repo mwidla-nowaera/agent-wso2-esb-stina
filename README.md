@@ -79,7 +79,7 @@ Only `from` or `to` field is allowed, as the mediator automatically sets the oth
 </ainoLog>
 ```
 
-All 'keys' must match keys configured in Aino configuration file.
+All 'keys' must match keys configured in Aino configuration file. Please note that the order of the configuration elements (child elements of ainoLog) must be as specified above (at least for now).
 
 ## Contributing
 
