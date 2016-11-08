@@ -43,8 +43,6 @@ public class AinoMediatorSerializer extends AbstractMediatorSerializer {
     private static final QName ATT_VALUE_Q = new QName("value");
     private static final QName ATT_EXPRESSION_Q = new QName("expression");
 
-    private static final QName ATT_CATEGORY_Q = new QName("category");
-    private static final QName ATT_LEVEL_Q = new QName("level");
     private static final QName ATT_SEPARATOR_Q = new QName("separator");
 
     private static final String DEFAULT_APPLICATION_KEY = "esb";
@@ -80,8 +78,6 @@ public class AinoMediatorSerializer extends AbstractMediatorSerializer {
         addToApplicationToElement(ainoMediator, logElement);
         addPayloadTypeToElement(ainoMediator, logElement);
         addPropertiesToElement(ainoMediator, logElement);
-        addCategoryToElement(ainoMediator, logElement);
-        addLogLevelToElement(ainoMediator, logElement);
         addSeparatorToElement(ainoMediator, logElement);
 
         return logElement;
@@ -105,26 +101,6 @@ public class AinoMediatorSerializer extends AbstractMediatorSerializer {
         }
 
         logElement.addAttribute(ATT_SEPARATOR_Q.getLocalPart(), separatorValue, null);
-    }
-
-    private void addLogLevelToElement(AinoMediator ainoMediator, OMElement logElement) {
-        String levelValue = ainoMediator.getLevel();
-
-        if(isNullOrEqual(levelValue, DEFAULT_LEVEL)){
-            return;
-        }
-
-        logElement.addAttribute(ATT_LEVEL_Q.getLocalPart(), levelValue, null);
-    }
-
-    private void addCategoryToElement(AinoMediator ainoMediator, OMElement logElement) {
-        String categoryValue = ainoMediator.getCategory();
-
-        if(isNullOrEqual(categoryValue, DEFAULT_CATEGORY)){
-            return;
-        }
-
-        logElement.addAttribute(ATT_CATEGORY_Q.getLocalPart(), categoryValue, null);
     }
 
     private boolean isNullOrEqual(String observed, String reference){
