@@ -339,15 +339,15 @@ public class AinoMediator extends AbstractMediator {
     }
 
     private String validateOrSetAinoOperationName(MessageContext context) {
+        String operationName;
 
         if(null != operation) {
-            Map<String, String> headersMap = getTransportHeadersMap(context);
-            headersMap.put(AINO_OPERATION_NAME_PROPERTY_NAME, operation);
-
-            return operation;
+            operationName = operation;
+        } else {
+            operationName = getOperationFromHeadersAndContext(context);
         }
 
-        String operationName = getOperationFromHeadersAndContext(context);
+        setPropertyToTransportHeadersMap(context, AINO_OPERATION_NAME_PROPERTY_NAME,  operation);
 
         return operationName;
     }
@@ -375,12 +375,15 @@ public class AinoMediator extends AbstractMediator {
     private String getOperationNameFromMessageContext(MessageContext context){
         try {
             String name = (String) context.getProperty(AINO_OPERATION_NAME_PROPERTY_NAME);
-            Map<String, String> headersMap = getTransportHeadersMap(context);
-            headersMap.put(AINO_OPERATION_NAME_PROPERTY_NAME, name);
             return name;
         } catch (ClassCastException ignored) {
             return null;
         }
+    }
+
+    private void setPropertyToTransportHeadersMap(MessageContext context, String key, String value) {
+        Map<String, String> headersMap = getTransportHeadersMap(context);
+        headersMap.put(key, value);
     }
 
     @SuppressWarnings("unchecked")
@@ -402,7 +405,7 @@ public class AinoMediator extends AbstractMediator {
             flowId = ((Axis2MessageContext) context).getAxis2MessageContext().getMessageID();
         }
 
-        headersMap.put(AINO_FLOW_ID_PROPERTY_NAME, flowId);
+        setPropertyToTransportHeadersMap(context, AINO_FLOW_ID_PROPERTY_NAME, flowId);
 
         return flowId;
     }
