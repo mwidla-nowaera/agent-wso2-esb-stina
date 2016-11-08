@@ -47,9 +47,6 @@ import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.*;
 public class AinoMediator extends AbstractMediator {
 
     public Agent ainoAgent;
-    //private final LogMediator logMediator;
-    //private Enum.LogLevel level = Enum.LogLevel.CUSTOM;
-    //private Enum.LogCategory category;
 
     private String separator;
     private String operation;
@@ -59,7 +56,6 @@ public class AinoMediator extends AbstractMediator {
     private String toApplication;
     private String payloadType;
     private Enum.Status status;
-    //private String flowId;
 
     private final MediatorLocation mediatorLocation;
 
@@ -278,7 +274,6 @@ public class AinoMediator extends AbstractMediator {
         transaction.setFromKey(this.fromApplication);
         transaction.setToKey(this.toApplication);
         transaction.setMessage(this.message);
-        transaction.setOperationKey(this.operation);
         transaction.setStatus(this.status == null ? "" : this.status.toString());
         transaction.setPayloadTypeKey(this.payloadType);
     }
@@ -345,29 +340,26 @@ public class AinoMediator extends AbstractMediator {
 
     private String validateOrSetAinoOperationName(MessageContext context) {
 
+        if(null != operation) {
+            Map<String, String> headersMap = getTransportHeadersMap(context);
+            headersMap.put(AINO_OPERATION_NAME_PROPERTY_NAME, operation);
+
+            return operation;
+        }
+
+        String operationName = getOperationFromHeadersAndContext(context);
+
+        return operationName;
+    }
+
+    private String getOperationFromHeadersAndContext(MessageContext context) {
         String ainoOperationName = getOperationNameFromTransportHeaders(context);
 
         if (null == ainoOperationName) {
             ainoOperationName = getOperationNameFromMessageContext(context);
         }
 
-        if(null != ainoOperationName){
-            return ainoOperationName;
-        }
-
-        if(null == operation){
-            log.warn("The AinoMediator encountered an operation it isn't registered for. Undefined operation.");
-            return null;
-        }
-
-        return getOperationNameFromMediator(context);
-
-    }
-
-    private String getOperationNameFromMediator(MessageContext context) {
-        Map<String, String> headersMap = getTransportHeadersMap(context);
-        headersMap.put(AINO_OPERATION_NAME_PROPERTY_NAME, operation);
-        return operation;
+        return ainoOperationName;
     }
 
     private String getOperationNameFromTransportHeaders(MessageContext context){
@@ -418,8 +410,7 @@ public class AinoMediator extends AbstractMediator {
     private String getFlowIdFromMessageContext(MessageContext context) {
         try {
             String flowId = (String) context.getProperty(AINO_FLOW_ID_PROPERTY_NAME);
-            Map<String, String> headersMap = getTransportHeadersMap(context);
-            headersMap.put(AINO_FLOW_ID_PROPERTY_NAME, flowId);
+
             return flowId;
         } catch (ClassCastException e) {
             return null;
