@@ -81,6 +81,10 @@ Only `from` or `to` field is allowed, as the mediator automatically sets the oth
 
 All 'keys' must match keys configured in Aino configuration file. Please note that the order of the configuration elements (child elements of ainoLog) must be as specified above (at least for now).
 
+### 5. Enable logging to ESB log (wso2carbon.log)
+The sent messages can be logged to ESB's log by setting *INFO* log level for class `io.aino.agents.wso2.mediator.AinoMediator`. 
+The log level can be changed via ESB's Management Console by going to Configure -> Logging. 
+
 ## Contributing
 
 ### Technical requirements
