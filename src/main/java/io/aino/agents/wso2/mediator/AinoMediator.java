@@ -192,14 +192,18 @@ public class AinoMediator extends AbstractMediator {
 
     @Override
     public boolean mediate(MessageContext context) {
-        initTransportHeadersMap(context);
+        try {
+            initTransportHeadersMap(context);
 
 
-        Transaction transaction = createTransaction(context);
-        new IdPropertyBuilder(this.idList).buildToContext(context, transaction);
+            Transaction transaction = createTransaction(context);
+            new IdPropertyBuilder(this.idList).buildToContext(context, transaction);
 
-        processTransaction(context, transaction);
-        logToEsb(context, transaction);
+            processTransaction(context, transaction);
+            logToEsb(context, transaction);
+        } catch (Exception e) {
+            log.error("Error occurred while trying to log to aino.io!", e);
+        }
 
         return true;
     }
