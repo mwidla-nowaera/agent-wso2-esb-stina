@@ -339,17 +339,17 @@ public class AinoMediator extends AbstractMediator {
     }
 
     private String validateOrSetAinoOperationName(MessageContext context) {
-        String operationName;
+        String operationKey;
 
         if(null != operation) {
-            operationName = operation;
+            operationKey = operation;
         } else {
-            operationName = getOperationFromHeadersAndContext(context);
+            operationKey = getOperationFromHeadersAndContext(context);
         }
 
-        setPropertyToTransportHeadersMap(context, AINO_OPERATION_NAME_PROPERTY_NAME,  operation);
+        setPropertyToTransportHeadersMap(context, AINO_OPERATION_KEY_PROPERTY_NAME,  operationKey);
 
-        return operationName;
+        return operationKey;
     }
 
     private String getOperationFromHeadersAndContext(MessageContext context) {
@@ -366,7 +366,7 @@ public class AinoMediator extends AbstractMediator {
         // This logic is in place for situations where the message is coming back from a system which doesn't return custom transport headers.
         try {
             Map<String, String> headersMap = getTransportHeadersMap(context);
-            return headersMap.get(AINO_OPERATION_NAME_PROPERTY_NAME);
+            return headersMap.get(AINO_OPERATION_KEY_PROPERTY_NAME);
         } catch (ClassCastException ignored) {
             return null;
         }
@@ -374,7 +374,7 @@ public class AinoMediator extends AbstractMediator {
 
     private String getOperationNameFromMessageContext(MessageContext context){
         try {
-            String name = (String) context.getProperty(AINO_OPERATION_NAME_PROPERTY_NAME);
+            String name = (String) context.getProperty(AINO_OPERATION_KEY_PROPERTY_NAME);
             return name;
         } catch (ClassCastException ignored) {
             return null;
@@ -429,20 +429,6 @@ public class AinoMediator extends AbstractMediator {
         return mediatorLocation;
     }
 
-    private void assertValidLogLevel(Enum.LogLevel level) {
-        if (level == null) {
-            StringBuilder sb = new StringBuilder("AinoMediator level must me one of: ");
-            sb.append(Arrays.toString(Enum.LogLevel.values()));
-            throw new IllegalArgumentException(sb.toString());
-        }
-    }
-
-    private Enum.LogLevel parseLogLevel(String levelString) {
-        if (StringUtils.isEmpty(levelString)) {
-            return Enum.LogLevel.CUSTOM;
-        }
-        return Enum.LogLevel.getLogLevel(levelString);
-    }
 
     /**
      * Gets separator used in logging.
