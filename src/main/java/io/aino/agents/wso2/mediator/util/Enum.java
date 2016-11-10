@@ -16,8 +16,6 @@
 
 package io.aino.agents.wso2.mediator.util;
 
-import org.apache.synapse.mediators.builtin.LogMediator;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,92 +63,6 @@ public class Enum {
         }
     }
 
-    /**
-     * Logging categories.
-     * FATAL, ERROR, WARN, INFO, DEBUG, TRACE.
-     */
-    public enum LogCategory {
-        FATAL(LogMediator.CATEGORY_FATAL, "FATAL"), ERROR(LogMediator.CATEGORY_ERROR, "ERROR"), WARN(
-                LogMediator.CATEGORY_WARN, "WARN"), INFO(LogMediator.CATEGORY_INFO, "INFO"), DEBUG(
-                LogMediator.CATEGORY_DEBUG, "DEBUG"), TRACE(LogMediator.CATEGORY_TRACE, "TRACE");
-
-        private static final Map<String, LogCategory> logCategories;
-
-        static {
-            logCategories = new HashMap<String, LogCategory>();
-
-            for (LogCategory lg : LogCategory.values()) {
-                logCategories.put(lg.categoryString, lg);
-            }
-        }
-        /**
-         * Gets Enum member based on string representation.
-         *
-         * @param categoryString category string
-         * @return Enum member corresponding to categoryString
-         */
-
-        public static LogCategory getLogCategory(String categoryString) {
-            return logCategories.get(categoryString);
-        }
-
-        private final int categoryInt;
-        private final String categoryString;
-
-        LogCategory(int categoryInt, String categoryString) {
-            this.categoryInt = categoryInt;
-            this.categoryString = categoryString;
-        }
-
-        public int getCategoryInt() {
-            return categoryInt;
-        }
-
-        @Override
-        public String toString() {
-            return categoryString;
-        }
-    }
-
-    /**
-     * Enum for log level.
-     * SIMPLE, HEADERS, FULL, CUSTOM.
-     */
-    public enum LogLevel {
-        SIMPLE(LogMediator.SIMPLE, "simple"), HEADERS(LogMediator.HEADERS, "headers"), FULL(LogMediator.FULL, "full"), CUSTOM(
-                LogMediator.CUSTOM, "custom");
-
-        private static final Map<String, LogLevel> logLevels;
-
-        static {
-            logLevels = new HashMap<String, LogLevel>();
-
-            for (LogLevel lv : LogLevel.values()) {
-                logLevels.put(lv.levelString, lv);
-            }
-        }
-
-        public static LogLevel getLogLevel(String levelString) {
-            return logLevels.get(levelString);
-        }
-
-        private final int levelInt;
-        private final String levelString;
-
-        LogLevel(int levelInt, String levelString) {
-            this.levelInt = levelInt;
-            this.levelString = levelString;
-        }
-
-        public int getLevelInt() {
-            return levelInt;
-        }
-
-        @Override
-        public String toString() {
-            return levelString;
-        }
-    }
 
     /**
      * Possible directions on logging in mediator.

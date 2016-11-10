@@ -163,8 +163,6 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
 
         AinoMediator mediator = new AinoMediator(MediatorLocation.getMediatorLocation(element), ainoAgent);
 
-        mediator.setCategory(element.getAttributeValue(ATT_CATEGORY_Q));
-        mediator.setLevel(element.getAttributeValue(ATT_LEVEL_Q));
         mediator.setSeparator(element.getAttributeValue(ATT_SEPARATOR_Q));
 
         // required elements

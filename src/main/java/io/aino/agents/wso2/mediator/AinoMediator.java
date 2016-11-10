@@ -17,20 +17,17 @@
 package io.aino.agents.wso2.mediator;
 
 import java.lang.reflect.Method;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.synapse.MessageContext;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.mediators.AbstractMediator;
 import org.apache.synapse.mediators.MediatorProperty;
-import org.apache.synapse.mediators.builtin.LogMediator;
 import org.apache.synapse.util.xpath.SynapseXPath;
 import org.jaxen.JaxenException;
 
@@ -50,9 +47,6 @@ import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.*;
 public class AinoMediator extends AbstractMediator {
 
     public Agent ainoAgent;
-    private final LogMediator logMediator;
-    private Enum.LogLevel level = Enum.LogLevel.CUSTOM;
-    private Enum.LogCategory category;
 
     private String separator;
     private String operation;
@@ -62,16 +56,15 @@ public class AinoMediator extends AbstractMediator {
     private String toApplication;
     private String payloadType;
     private Enum.Status status;
-    private String flowId;
 
-    private MediatorLocation mediatorLocation;
+    private final MediatorLocation mediatorLocation;
 
     private List<MediatorProperty> customProperties;
     private final List<Id> idList = new ArrayList<Id>();
 
 
     @SuppressWarnings("serial")
-	private class DataFieldList extends ArrayList<String> {
+    private class DataFieldList extends ArrayList<String> {
 
         public DataFieldList(List<String> data) {
             this.addAll(data);
@@ -103,23 +96,7 @@ public class AinoMediator extends AbstractMediator {
     public AinoMediator(MediatorLocation ml, Agent agent) {
         this.mediatorLocation = ml;
         this.ainoAgent = agent;
-        this.logMediator = new LogMediator();
 
-        initLogMediator();
-    }
-
-    private void initLogMediator() {
-        try {
-            populateSynapseLogMediatorProperties();
-        } catch (JaxenException e) {
-            throw new InvalidAgentConfigException("Failed to initialize the AinoMediator at " + this.mediatorLocation);
-        }
-    }
-
-    private void populateSynapseLogMediatorProperties() throws JaxenException {
-        logMediator.addProperty(getMediatorProperty("artifactType", mediatorLocation.getArtifactType(), null));
-        logMediator.addProperty(getMediatorProperty("artifactName", mediatorLocation.getArtifactName(), null));
-        logMediator.addProperty(getMediatorProperty("lineNumber", Integer.toString(mediatorLocation.getLineNumber()), null));
     }
 
     private static MediatorProperty getMediatorProperty(String name, String value, String expression)
@@ -198,7 +175,6 @@ public class AinoMediator extends AbstractMediator {
      */
     public void setProperties(List<MediatorProperty> properties) {
         customProperties = properties;
-        logMediator.addAllProperties(properties);
     }
 
     /**
@@ -212,62 +188,72 @@ public class AinoMediator extends AbstractMediator {
 
     @Override
     public boolean mediate(MessageContext context) {
-        initTransportHeadersMap(context);
+        try {
+            initTransportHeadersMap(context);
 
-        validateOrSetAinoFlowId(context);
-        validateOrSetAinoOperationName(context);
 
-        Transaction transaction = createTransaction(context);
-        new IdPropertyBuilder(this.idList).buildToContext(context, transaction);
+            Transaction transaction = createTransaction(context);
+            new IdPropertyBuilder(this.idList).buildToContext(context, transaction);
 
-        refreshMediatorProperties();
-        logMediator.mediate(context);
-
-        processTransaction(context, transaction);
+            processTransaction(context, transaction);
+            logToEsb(context, transaction);
+        } catch (Exception e) {
+            log.error("Error occurred while trying to log to aino.io!", e);
+        }
 
         return true;
     }
 
-    private void refreshMediatorProperties() {
-        refreshMediatorProperty(OPERATION_TAG_NAME, ainoAgent.getAgentConfig().getOperations().getEntry(this.operation));
-        refreshMediatorProperty(FLOW_ID_PROPERTY_NAME, this.flowId);
-        refreshMediatorProperty(MESSAGE_TAG_NAME, this.message);
-        refreshMediatorProperty(STATUS_ATT_NAME, this.status.name());
-        refreshMediatorProperty(PAYLOAD_TAG_NAME, ainoAgent.getAgentConfig().getPayloadTypes().getEntry(this.payloadType));
-        refreshMediatorProperty(FROM_TAG_NAME, ainoAgent.getAgentConfig().getApplications().getEntry(fromApplication));
-        refreshMediatorProperty(TO_TAG_NAME, ainoAgent.getAgentConfig().getApplications().getEntry(toApplication));
+    private void logToEsb(MessageContext context, Transaction transaction) {
+        StringBuilder sb = new StringBuilder();
+
+        for (MediatorProperty prop : customProperties) {
+            sb.append(prop.getName()).append(" = ").append(prop.getValue());
+            sb.append(this.separator);
+        }
+
+        if(transaction != null) {
+            appendNormalFieldsToLogMessage(transaction, sb);
+            appendIdsToLogMessage(transaction, sb);
+        }
+
+        log.info(sb.toString());
     }
 
-    private void refreshMediatorProperty(String name, String value) {
-        if (value != null) {
-            try {
-                Iterator iter = logMediator.getProperties().iterator();
-                MediatorProperty property = null;
-                while (iter.hasNext()) {
-                    Object propertyObject = iter.next();
-                    if (((MediatorProperty) propertyObject).getName().equals(name)) {
-                        property = (MediatorProperty) propertyObject;
-                        break;
-                    }
-                }
-                if (property != null) {
-                    logMediator.getProperties().remove(property);
-                }
-                logMediator.addProperty(getMediatorProperty(name, value, null));
-            } catch (JaxenException e) {
-                throw new InvalidAgentConfigException("Failed to initialize the AinoMediator at " + mediatorLocation);
-            }
+    private void appendIdsToLogMessage(Transaction transaction, StringBuilder sb) {
+        sb.append("ids = [");
+        for(String idName : transaction.getIds().keySet()) {
+            sb.append(idName).append(": [");
+            List<String> ids = transaction.getIds().get(idName);
+            sb.append(StringUtils.join(ids, ",")).append("],");
         }
+        sb.append("]");
     }
+
+    private void appendNormalFieldsToLogMessage(Transaction transaction, StringBuilder sb) {
+        appendNameAndValueToLogMessage("operation",ainoAgent.getAgentConfig().getOperations().getEntry(transaction.getOperationKey()), sb);
+        appendNameAndValueToLogMessage("flowId", transaction.getFlowId(), sb);
+        appendNameAndValueToLogMessage("message", transaction.getMessage(), sb);
+        appendNameAndValueToLogMessage("status", transaction.getStatus(), sb);
+        appendNameAndValueToLogMessage("payloadType", ainoAgent.getAgentConfig().getPayloadTypes().getEntry(transaction.getPayloadTypeKey()), sb);
+        appendNameAndValueToLogMessage("from", ainoAgent.getAgentConfig().getApplications().getEntry(transaction.getFromKey()), sb);
+        appendNameAndValueToLogMessage("to", ainoAgent.getAgentConfig().getApplications().getEntry(transaction.getToKey()), sb);
+        appendNameAndValueToLogMessage("ainoTimestamp", String.valueOf(transaction.getTimestamp()), sb);
+    }
+
+    private void appendNameAndValueToLogMessage(String name, String value, StringBuilder sb) {
+        sb.append(name)
+                .append(" = ")
+                .append(value)
+                .append(this.separator);
+    }
+
 
     private void processTransaction(MessageContext context, Transaction transaction) {
         if(transaction == null) { return; }
         addFieldsToTransaction(transaction);
 
-        List<MediatorProperty> properties = logMediator.getProperties();
-        if(properties == null) { return; }
-
-        for (MediatorProperty property : properties) {
+        for (MediatorProperty property : customProperties) {
             if (isMetadataProperty(property)) {
                 String propertyValue = property.getValue() != null ? property.getValue() : property.getEvaluatedExpression(context);
                 transaction.addMetadata(property.getName(), propertyValue);
@@ -288,16 +274,21 @@ public class AinoMediator extends AbstractMediator {
         transaction.setFromKey(this.fromApplication);
         transaction.setToKey(this.toApplication);
         transaction.setMessage(this.message);
-        transaction.setOperationKey(this.operation);
         transaction.setStatus(this.status == null ? "" : this.status.toString());
-        transaction.setFlowId(this.flowId);
         transaction.setPayloadTypeKey(this.payloadType);
     }
 
     private Transaction createTransaction(MessageContext context) {
+
+        String flowId = validateOrSetAinoFlowId(context);
+        String operationKey = validateOrSetAinoOperationName(context);
+
         Transaction transaction = null;
         if (ainoAgent.isEnabled()) {
             transaction = ainoAgent.newTransaction();
+
+            transaction.setFlowId(flowId);
+            transaction.setOperationKey(operationKey);
 
             transaction.addMetadata("artifactName", mediatorLocation.getArtifactName());
             transaction.addMetadata("esbServerName", esbServerName);
@@ -348,37 +339,34 @@ public class AinoMediator extends AbstractMediator {
     }
 
     private String validateOrSetAinoOperationName(MessageContext context) {
+        String operationKey;
 
+        if(null != operation) {
+            operationKey = operation;
+        } else {
+            operationKey = getOperationFromHeadersAndContext(context);
+        }
+
+        setPropertyToTransportHeadersMap(context, AINO_OPERATION_KEY_PROPERTY_NAME,  operationKey);
+
+        return operationKey;
+    }
+
+    private String getOperationFromHeadersAndContext(MessageContext context) {
         String ainoOperationName = getOperationNameFromTransportHeaders(context);
 
         if (null == ainoOperationName) {
             ainoOperationName = getOperationNameFromMessageContext(context);
         }
 
-        if(null != ainoOperationName){
-            return ainoOperationName;
-        }
-
-        if(null == operation){
-            log.warn("The AinoMediator encountered an operation it isn't registered for. Undefined operation.");
-            return null;
-        }
-
-        return getOperationNameFromMediator(context);
-
-    }
-
-    private String getOperationNameFromMediator(MessageContext context) {
-        Map<String, String> headersMap = getTransportHeadersMap(context);
-        headersMap.put(AINO_OPERATION_NAME_PROPERTY_NAME, operation);
-        return operation;
+        return ainoOperationName;
     }
 
     private String getOperationNameFromTransportHeaders(MessageContext context){
         // This logic is in place for situations where the message is coming back from a system which doesn't return custom transport headers.
         try {
             Map<String, String> headersMap = getTransportHeadersMap(context);
-            return headersMap.get(AINO_OPERATION_NAME_PROPERTY_NAME);
+            return headersMap.get(AINO_OPERATION_KEY_PROPERTY_NAME);
         } catch (ClassCastException ignored) {
             return null;
         }
@@ -386,13 +374,16 @@ public class AinoMediator extends AbstractMediator {
 
     private String getOperationNameFromMessageContext(MessageContext context){
         try {
-            String name = (String) context.getProperty(AINO_OPERATION_NAME_PROPERTY_NAME);
-            Map<String, String> headersMap = getTransportHeadersMap(context);
-            headersMap.put(AINO_OPERATION_NAME_PROPERTY_NAME, name);
+            String name = (String) context.getProperty(AINO_OPERATION_KEY_PROPERTY_NAME);
             return name;
         } catch (ClassCastException ignored) {
             return null;
         }
+    }
+
+    private void setPropertyToTransportHeadersMap(MessageContext context, String key, String value) {
+        Map<String, String> headersMap = getTransportHeadersMap(context);
+        headersMap.put(key, value);
     }
 
     @SuppressWarnings("unchecked")
@@ -401,7 +392,7 @@ public class AinoMediator extends AbstractMediator {
     }
 
 
-    private void validateOrSetAinoFlowId(MessageContext context) {
+    private String validateOrSetAinoFlowId(MessageContext context) {
         Map<String, String> headersMap = getTransportHeadersMap(context);
 
         String flowId = headersMap.get(AINO_FLOW_ID_PROPERTY_NAME);
@@ -414,15 +405,15 @@ public class AinoMediator extends AbstractMediator {
             flowId = ((Axis2MessageContext) context).getAxis2MessageContext().getMessageID();
         }
 
-        this.flowId = flowId;
-        headersMap.put(AINO_FLOW_ID_PROPERTY_NAME, this.flowId);
+        setPropertyToTransportHeadersMap(context, AINO_FLOW_ID_PROPERTY_NAME, flowId);
+
+        return flowId;
     }
 
     private String getFlowIdFromMessageContext(MessageContext context) {
         try {
             String flowId = (String) context.getProperty(AINO_FLOW_ID_PROPERTY_NAME);
-            Map<String, String> headersMap = getTransportHeadersMap(context);
-            headersMap.put(AINO_FLOW_ID_PROPERTY_NAME, flowId);
+
             return flowId;
         } catch (ClassCastException e) {
             return null;
@@ -438,85 +429,6 @@ public class AinoMediator extends AbstractMediator {
         return mediatorLocation;
     }
 
-    /**
-     * Sets mediator location.
-     *
-     * @param mediatorLocation mediator location
-     */
-    public void setMediatorLocation(MediatorLocation mediatorLocation) {
-        this.mediatorLocation = mediatorLocation;
-    }
-
-    /**
-     * Gets logging category.
-     *
-     * @return logging category
-     */
-    public String getCategory() {
-        return category == null ? null : category.toString();
-    }
-
-    /**
-     * Sets logging category.
-     *
-     * @param categoryString category as string
-     * @throws IllegalArgumentException when logging category is invalid
-     */
-    public void setCategory(String categoryString) {
-        Enum.LogCategory category;
-        if (categoryString == null || categoryString.isEmpty()) {
-            category = Enum.LogCategory.INFO;
-        } else {
-            category = Enum.LogCategory.getLogCategory(categoryString);
-        }
-
-        if (category == null) {
-            throw new IllegalArgumentException(MessageFormat.format("AinoLogMediatorCategory must me one of: {0}",
-                    Arrays.toString(Enum.LogCategory.values())));
-        }
-
-        this.category = category;
-
-        logMediator.setCategory(category.getCategoryInt());
-    }
-
-    /**
-     * Gets logging level.
-     *
-     * @return log level
-     */
-    public String getLevel() {
-        return level.toString();
-    }
-
-    /**
-     * Sets logging level.
-     *
-     * @param levelString log level
-     * @throws IllegalArgumentException when log level is not valid
-     */
-    public void setLevel(String levelString) {
-        Enum.LogLevel level = parseLogLevel(levelString);
-        assertValidLogLevel(level);
-
-        this.level = level;
-        logMediator.setLogLevel(level.getLevelInt());
-    }
-
-    private void assertValidLogLevel(Enum.LogLevel level) {
-        if (level == null) {
-            StringBuilder sb = new StringBuilder("AinoMediator level must me one of: ");
-            sb.append(Arrays.toString(Enum.LogLevel.values()));
-            throw new IllegalArgumentException(sb.toString());
-        }
-    }
-
-    private Enum.LogLevel parseLogLevel(String levelString) {
-        if (StringUtils.isEmpty(levelString)) {
-            return Enum.LogLevel.CUSTOM;
-        }
-        return Enum.LogLevel.getLogLevel(levelString);
-    }
 
     /**
      * Gets separator used in logging.
@@ -538,7 +450,6 @@ public class AinoMediator extends AbstractMediator {
             separator = ",";
         }
         this.separator = separator;
-        logMediator.setSeparator(separator);
     }
 
     /**

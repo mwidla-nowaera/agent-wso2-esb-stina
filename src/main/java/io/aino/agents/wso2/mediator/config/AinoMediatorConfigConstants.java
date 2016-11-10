@@ -44,8 +44,6 @@ public class AinoMediatorConfigConstants {
     public static final String AINO_CONFIG_FILE_NAME = "ainoLogMediatorConfig.xml";
     public static final String AINO_CONFIG_FILE_PATH = ESB_CONFIG_DIR + AINO_CONFIG_FILE_NAME;
 
-    public static final String DEFAULT_CATEGORY = "INFO";
-    public static final String DEFAULT_LEVEL = "custom";
     public static final String DEFAULT_SEPARATOR = ",";
 
     public static final String NAMESPACE_STRING = XMLConfigConstants.SYNAPSE_NAMESPACE;
@@ -79,8 +77,6 @@ public class AinoMediatorConfigConstants {
     public static final String PAYLOAD_TAG_NAME = "payloadType";
 
 
-    public static final QName ATT_CATEGORY_Q = new QName("category");
-    public static final QName ATT_LEVEL_Q = new QName("level");
     public static final QName ATT_SEPARATOR_Q = new QName("separator");
 
     public static final QName CONFIG_AINO_LOGGER_SERVICE_Q = new QName(CONFIG_AINO_LOGER_SERVICE_TAG_NAME);
@@ -112,7 +108,7 @@ public class AinoMediatorConfigConstants {
     public static final QName TO_Q = new QName(NAMESPACE_STRING, TO_TAG_NAME);
     public static final QName PAYLOAD_Q = new QName(NAMESPACE_STRING, PAYLOAD_TAG_NAME);
 
-    public static final String AINO_OPERATION_NAME_PROPERTY_NAME = "ainoOperationName";
+    public static final String AINO_OPERATION_KEY_PROPERTY_NAME = "ainoOperationName";
     public static final String AINO_IDS_PROPERTY_NAME = "ainoIds";
     public static final String AINO_FLOW_ID_PROPERTY_NAME = "ainoFlowId";
     public static final String AINO_ARTIFACT_TYPE_PROPERTY_NAME = "ainoArtifactType";
@@ -124,7 +120,7 @@ public class AinoMediatorConfigConstants {
     public static final String AXIS_TRANSPORT_HEADER_PREFIX = "$trp:";
 
     public static final String AINO_OPERATION_NAME_PROPERTY_PATH = AXIS_TRANSPORT_HEADER_PREFIX
-            + AINO_OPERATION_NAME_PROPERTY_NAME;
+            + AINO_OPERATION_KEY_PROPERTY_NAME;
     public static final String AINO_IDS_PROPERTY_PATH = SYNAPSE_MESSAGE_CONTEXT_PREFIX + AINO_IDS_PROPERTY_NAME;
     public static final String AINO_FLOW_ID_PROPERTY_PATH = AXIS_TRANSPORT_HEADER_PREFIX
             + AINO_FLOW_ID_PROPERTY_NAME;
