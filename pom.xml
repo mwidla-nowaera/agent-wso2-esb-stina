@@ -33,17 +33,8 @@
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                         <Embed-Dependency>
-                            commons-lang3;inline=false,
-                            gson;inline=false,
                             AgentJava;inline=false,
-                            geronimo-activation_1.1_spec;inline=false,
-                            xml-apis;groupId=xml-apis;inline=false,
-                            geronimo-servlet_3.0_spec;inline=false,
-                            commons-logging;inline=false,
-                            avalon-logkit;inline=false,
-                            avalon-framework-api;inline=false,
-                            geronimo-osgi-registry;inline=false,
-                            avalon-logkit;inline=false
+                            xml-apis;groupId=xml-apis;inline=false
                         </Embed-Dependency>
                         <Fragment-Host>synapse-core</Fragment-Host>
                     </instructions>
@@ -113,79 +104,9 @@
     </distributionManagement>
     <dependencies>
         <dependency>
-            <groupId>commons-httpclient.wso2</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <version>3.1.0.wso2v2</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec.wso2</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.4.0.wso2v1</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.synapse</groupId>
             <artifactId>synapse-core</artifactId>
             <version>2.1.2-wso2v4</version>
-        </dependency>
-        <dependency>
-            <groupId>wsdl4j.wso2</groupId>
-            <artifactId>wsdl4j</artifactId>
-            <version>1.6.2.wso2v4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ws.commons.schema.wso2</groupId>
-            <artifactId>XmlSchema</artifactId>
-            <version>1.4.7.wso2v2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.abdera.wso2</groupId>
-            <artifactId>abdera</artifactId>
-            <version>1.0.0.wso2v3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs.wso2</groupId>
-            <artifactId>geronimo-stax-api_1.0_spec</artifactId>
-            <version>1.0.1.wso2v2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents.wso2</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>4.1.0-wso2v1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.neethi.wso2</groupId>
-            <artifactId>neethi</artifactId>
-            <version>2.0.4.wso2v4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.axis2.wso2</groupId>
-            <artifactId>axis2</artifactId>
-            <version>1.6.1.wso2v6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.woden.wso2</groupId>
-            <artifactId>woden</artifactId>
-            <version>1.0.0.M8-wso2v1</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ws.commons.axiom.wso2</groupId>
-            <artifactId>axiom</artifactId>
-            <version>1.2.11.wso2v3</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io.wso2</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.0.0.wso2v2</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -205,36 +126,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.5</version>
-        </dependency>
-        <dependency>
-        	<groupId>org.apache.geronimo.specs</groupId>
-		    <artifactId>geronimo-activation_1.1_spec</artifactId>
-    		<version>1.1</version>
-        </dependency>
-        <dependency>
         	<groupId>xml-apis</groupId>
 			<artifactId>xml-apis</artifactId>
 			<version>2.0.2</version>
         </dependency>
-		<dependency>
-		    <groupId>org.apache.avalon.framework</groupId>
-		    <artifactId>avalon-framework-api</artifactId>
-		    <version>4.3.1</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.apache.geronimo.specs</groupId>
-		    <artifactId>geronimo-osgi-registry</artifactId>
-		    <version>1.1</version>
-		</dependency>
-		<dependency>
-		    <groupId>avalon-logkit</groupId>
-		    <artifactId>avalon-logkit</artifactId>
-		    <version>2.1</version>
-		    <scope>runtime</scope>
-		</dependency>
     </dependencies>
     <properties>
         <CApp.type>lib/synapse/mediator</CApp.type>
