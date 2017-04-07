@@ -138,7 +138,7 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
                 if(ainoAgent != null) return;
                 confStream.reset();
                 ainoAgent = Agent.getFactory().setConfigurationBuilder(new InputStreamConfigBuilder(confStream)).build();
-                if(!ainoAgent.applicationExists("esb")) {
+                if(ainoAgent.isEnabled() && !ainoAgent.applicationExists("esb")) {
                     throw new InvalidAgentConfigException("application with key 'esb' must be configured.");
                 }
             } finally {

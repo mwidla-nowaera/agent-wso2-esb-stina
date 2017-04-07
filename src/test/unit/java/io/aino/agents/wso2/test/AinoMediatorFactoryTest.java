@@ -198,4 +198,16 @@ public class AinoMediatorFactoryTest {
                 TestUtils.class.getResource("/conf/ainoLogMediatorConfigIllegalCharacter.xml").getFile()));
         assertNull(new AinoMediatorFactory(ainoConf, axisConf));
     }
+
+    @Test
+    public void testDisabledFactoryConfig() throws FileNotFoundException {
+        // test fix for https://github.com/Aino-io/agent-wso2-esb/issues/22 :
+        // factory creation should not fail when sender is disabled
+        InputStream axisConf = new FileInputStream(new File(
+                TestUtils.class.getResource("/conf/axis2.xml").getFile()));
+
+        InputStream ainoConf = new FileInputStream(new File(
+                TestUtils.class.getResource("/conf/ainoLogMediatorConfigDisabled.xml").getFile()));
+        assertNotNull(new AinoMediatorFactory(ainoConf, axisConf));
+    }
 }

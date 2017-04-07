@@ -1,0 +1,12 @@
+<ainoConfig>
+  <ainoLoggerService enabled="false">
+    <address uri="http://localhost:8808/api/1.0/saveLogArray" apiKey="80D0710C-2EE6-481E-BA9E-9A21C2486EE7"/>
+    <send interval="5" sizeThreshold="0"/>
+  </ainoLoggerService>
+  <operations/>
+  <applications>
+    <application key="esb" name="ESB" />
+  </applications>
+  <idTypes/>
+  <payloadTypes/>
+</ainoConfig>
