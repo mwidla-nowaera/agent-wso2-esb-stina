@@ -33,21 +33,25 @@ import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.synapse.Mediator;
 import org.apache.synapse.mediators.builtin.LogMediator;
 import org.jaxen.JaxenException;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import io.aino.agents.wso2.mediator.factory.AinoMediatorFactory;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
 
 import static org.junit.Assert.*;
 
 @SuppressWarnings("unchecked")
 public class AinoMediatorFactoryTest {
 
+    private static final String SERVER_NAME_IN_AXIS2_CONFIG = "localhost_sweet_localhost";
+    private static final String COMPUTER_NAME_PROPERTY = "COMPUTERNAME";
+    private static final String HOST_NAME_PROPERTY = "HOSTNAME";
 
     private final AXIOMXPath ainoLogs;
+
+    @Rule
+    public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
+
 
     public AinoMediatorFactoryTest() throws FileNotFoundException, XMLStreamException, JaxenException {
         ainoLogs = new AXIOMXPath("//syn:ainoLog");
@@ -65,7 +69,6 @@ public class AinoMediatorFactoryTest {
 
     @Before
     public void setUp() throws Exception {
-
     }
 
     @After
@@ -191,23 +194,44 @@ public class AinoMediatorFactoryTest {
 
     @Test(expected = InvalidAgentConfigException.class)
     public void testInvalidFactoryConfig() throws FileNotFoundException {
-        InputStream axisConf = new FileInputStream(new File(
-                TestUtils.class.getResource("/conf/axis2.xml").getFile()));
-
-        InputStream ainoConf = new FileInputStream(new File(
-                TestUtils.class.getResource("/conf/ainoLogMediatorConfigIllegalCharacter.xml").getFile()));
-        assertNull(new AinoMediatorFactory(ainoConf, axisConf));
+        factoryFrom("ainoLogMediatorConfigIllegalCharacter.xml");
     }
 
     @Test
     public void testDisabledFactoryConfig() throws FileNotFoundException {
         // test fix for https://github.com/Aino-io/agent-wso2-esb/issues/22 :
         // factory creation should not fail when sender is disabled
+        assertNotNull(factoryFrom("ainoLogMediatorConfigDisabled.xml"));
+    }
+
+    @Test
+    public void testReadEsbServerNameFromComputerNameSystemProperty() throws FileNotFoundException {
+        environmentVariables.set(COMPUTER_NAME_PROPERTY, "foo");
+        environmentVariables.set(HOST_NAME_PROPERTY, "bar");
+        AinoMediatorFactory mediatorFactory = factoryFrom("ainoLogMediatorConfig.xml");
+        assertEquals("foo", mediatorFactory.getEsbServerName());
+    }
+
+    @Test
+    public void testReadEsbServerNameFromHostNameSystemProperty() throws FileNotFoundException {
+        environmentVariables.set(HOST_NAME_PROPERTY, "bar");
+        AinoMediatorFactory mediatorFactory = factoryFrom("ainoLogMediatorConfig.xml");
+        assertEquals("bar", mediatorFactory.getEsbServerName());
+    }
+
+    @Test
+    public void testReadEsbServerNameFromAxis2Config() throws FileNotFoundException {
+        // no environment variables set
+        AinoMediatorFactory mediatorFactory = factoryFrom("ainoLogMediatorConfig.xml");
+        assertEquals(SERVER_NAME_IN_AXIS2_CONFIG, mediatorFactory.getEsbServerName());
+    }
+
+    private AinoMediatorFactory factoryFrom(String ainoLogMediatorConfigFileName) throws FileNotFoundException {
         InputStream axisConf = new FileInputStream(new File(
                 TestUtils.class.getResource("/conf/axis2.xml").getFile()));
 
         InputStream ainoConf = new FileInputStream(new File(
-                TestUtils.class.getResource("/conf/ainoLogMediatorConfigDisabled.xml").getFile()));
-        assertNotNull(new AinoMediatorFactory(ainoConf, axisConf));
+                TestUtils.class.getResource("/conf/" + ainoLogMediatorConfigFileName).getFile()));
+        return new AinoMediatorFactory(ainoConf, axisConf);
     }
 }

@@ -119,6 +119,13 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
         }
     }
 
+    /**
+     * Returns the ESB server name property.
+     */
+    public String getEsbServerName() {
+        return esbServerName;
+    }
+
     private boolean closeStreamQuietly(InputStream stream){
         if(null == stream){
             return true;
@@ -318,22 +325,22 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
     }
 
     private static String getHostName(InputStream axis2ConfigInputStream) {
-        String hostName = getHostNameFromAinoConfig(axis2ConfigInputStream);
-        if (StringUtils.isNotEmpty(hostName)) {
-            return hostName;
-        }
-
-        hostName = getInetHostName();
-        if (StringUtils.isNotEmpty(hostName)) {
-            return hostName;
-        }
-
-        hostName = System.getenv("COMPUTERNAME");
+        String hostName = System.getenv("COMPUTERNAME");
         if (StringUtils.isNotEmpty(hostName)) {
             return hostName;
         }
 
         hostName = System.getenv("HOSTNAME");
+        if (StringUtils.isNotEmpty(hostName)) {
+            return hostName;
+        }
+
+        hostName = getHostNameFromAinoConfig(axis2ConfigInputStream);
+        if (StringUtils.isNotEmpty(hostName)) {
+            return hostName;
+        }
+
+        hostName = getInetHostName();
         if (StringUtils.isNotEmpty(hostName)) {
             return hostName;
         }

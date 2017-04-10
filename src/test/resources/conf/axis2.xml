@@ -85,7 +85,7 @@
     <!-- Resolve root used to resolve synapse references like schemas inside a WSDL -->
     <parameter name="SynapseConfig.ResolveRoot" locked="false">.</parameter>
     <!-- Synapse Server name parameter -->
-    <parameter name="SynapseConfig.ServerName" locked="false">localhost</parameter>
+    <parameter name="SynapseConfig.ServerName" locked="false">localhost_sweet_localhost</parameter>
 
     <!-- To override repository/services you need to uncomment following parameter and value -->
     <!-- SHOULD be absolute file path. -->
