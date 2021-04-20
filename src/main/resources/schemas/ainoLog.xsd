@@ -39,10 +39,11 @@
   
     <xs:element name="message">
         <xs:complexType>
-            <xs:attribute name="value" type="syn:nonEmptyString" use="required" />
+                <xs:attribute name="value" type="syn:nonEmptyString"  use="optional" />
+                <xs:attribute name="expression" type="syn:nonEmptyString"  use="optional" />
         </xs:complexType>
     </xs:element>
-  
+
     <xs:element name="ids">
         <xs:complexType>
             <xs:attribute name="typeKey" type="syn:nonEmptyString" use="required" />

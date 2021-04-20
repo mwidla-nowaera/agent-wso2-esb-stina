@@ -283,7 +283,18 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
     private void setMediatorMessage(OMElement element, AinoMediator mediator) {
         OMElement messageElement = element.getFirstChildWithName(MESSAGE_Q);
         if (messageElement == null) { return; }
-        mediator.setMessage(messageElement.getAttributeValue(ATT_VALUE));
+        if (messageElement.getAttributeValue(ATT_VALUE) != null){
+            mediator.setMessage(messageElement.getAttributeValue(ATT_VALUE));
+        }
+        try {
+            if (messageElement.getAttributeValue(ATT_EXPRN) != null) {
+                mediator.setDynamicMessage(SynapseXPathFactory.getSynapseXPath(messageElement, ATT_EXPRN));
+            }
+        } catch (JaxenException e) {
+            StringBuilder sb = new StringBuilder("An invalid xPath expression has been given to a AinoMediator ");
+            sb.append(MESSAGE_Q).append(" element");
+            throw new InvalidAgentConfigException(sb.toString(), e);
+        }
     }
 
     private void setMediatorOperation(OMElement element, AinoMediator mediator) {

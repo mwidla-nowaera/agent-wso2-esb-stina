@@ -157,12 +157,16 @@ public class AinoMediatorSerializer extends AbstractMediatorSerializer {
 
     private void addMessageToElement(AinoMediator ainoMediator, OMElement logElement) {
 
-        if(null == ainoMediator.getMessage()){
+        if(null == ainoMediator.getMessage() && ainoMediator.getDynamicMessage() == null){
             return;
         }
 
         OMElement messageElement = fac.createOMElement(MESSAGE_TAG_NAME, synNS);
-        messageElement.addAttribute(ATT_VALUE_Q.getLocalPart(), ainoMediator.getMessage(), null);
+        if (ainoMediator.getDynamicMessage() != null){
+            SynapseXPathSerializer.serializeXPath(ainoMediator.getDynamicMessage(), messageElement, ATT_EXPRESSION_Q.getLocalPart());
+        } else {
+            messageElement.addAttribute(ATT_VALUE_Q.getLocalPart(), ainoMediator.getMessage(), null);
+        }
         logElement.addChild(messageElement);
     }
 

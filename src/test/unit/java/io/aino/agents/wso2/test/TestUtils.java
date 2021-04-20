@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 public class TestUtils {
 
     public static String SYNAPSE_NAMESPACE = XMLConfigConstants.SYNAPSE_NAMESPACE;
-
+    public static String AINO_PROXY_CONFIG_ALL_ELEMENTS_DYNAMIC_MESSAGE = "/validAinoConfigAllElementsDynamicMessage.xml";
     public static String AINO_PROXY_CONFIG_REQUIRED_ELEMENTS = "/validAinoConfigRequiredElements.xml";
     public static String AINO_PROXY_CONFIG_ALL_ELEMENTS = "/validAinoConfigAllElements.xml";
     public static String AINO_PROXY_CONFIG_ALL_ELEMENTS_AND_PROPERTIES = "/validAinoConfigAllElementsAndProperties.xml";

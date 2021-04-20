@@ -51,6 +51,7 @@ public class AinoMediator extends AbstractMediator {
     private String separator;
     private String operation;
     private String message;
+    private SynapseXPath dynamicMessage = null;
     private String esbServerName;
     private String fromApplication;
     private String toApplication;
@@ -194,7 +195,6 @@ public class AinoMediator extends AbstractMediator {
 
             Transaction transaction = createTransaction(context);
             new IdPropertyBuilder(this.idList).buildToContext(context, transaction);
-
             processTransaction(context, transaction);
             logToEsb(context, transaction);
         } catch (Exception e) {
@@ -252,6 +252,15 @@ public class AinoMediator extends AbstractMediator {
     private void processTransaction(MessageContext context, Transaction transaction) {
         if(transaction == null) { return; }
         addFieldsToTransaction(transaction);
+        // If message is given as dynamic expression. Process it here. 
+        String calculatedMessage = processDynamicMessage(context);
+        if (calculatedMessage != null) {
+            transaction.setMessage(calculatedMessage);
+        } else {
+            // Static value attribute was used 
+            transaction.setMessage(this.message);
+        }
+            
 
         for (MediatorProperty property : customProperties) {
             if (isMetadataProperty(property)) {
@@ -273,7 +282,6 @@ public class AinoMediator extends AbstractMediator {
     private void addFieldsToTransaction(Transaction transaction) {
         transaction.setFromKey(this.fromApplication);
         transaction.setToKey(this.toApplication);
-        transaction.setMessage(this.message);
         transaction.setStatus(this.status == null ? "" : this.status.toString());
         transaction.setPayloadTypeKey(this.payloadType);
     }
@@ -486,6 +494,31 @@ public class AinoMediator extends AbstractMediator {
      */
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public void setDynamicMessage(SynapseXPath xpath){
+        this.dynamicMessage = xpath;
+    }
+
+    public  SynapseXPath getDynamicMessage(){
+        return this.dynamicMessage;
+    }
+
+    protected String processDynamicMessage(MessageContext context){
+        if (this.dynamicMessage != null) {
+            try {
+                Object evaluationResult = dynamicMessage.evaluate(context);
+                if (evaluationResult != null){
+                    return evaluationResult.toString();
+                }
+            } catch (JaxenException e) {
+                StringBuilder sb = new StringBuilder("Error while resolving the dynamic message");
+                sb.append(" XPath expression: ").append(dynamicMessage.toString());
+                sb.append(" Exception message: ").append(e.getMessage());
+                log.warn(sb.toString(), e);
+            }
+        }
+        return null;
     }
 
     /**

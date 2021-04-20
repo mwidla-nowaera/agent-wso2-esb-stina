@@ -102,6 +102,16 @@ public class AinoMediatorSerializerTest {
     }
 
     @Test
+    public void serializerSetDynamicMessageTest() throws Exception {
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_ALL_ELEMENTS_DYNAMIC_MESSAGE);
+
+        OMAttribute attribute = serializeAndFindAttribute(m, "message", "expression");
+
+        assertEquals("//order/orderId", attribute.getAttributeValue());
+    }
+
+
+    @Test
     public void serializerSetToApplicationTest() throws Exception {
         AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_ALL_ELEMENTS_AND_PROPERTIES);
 
