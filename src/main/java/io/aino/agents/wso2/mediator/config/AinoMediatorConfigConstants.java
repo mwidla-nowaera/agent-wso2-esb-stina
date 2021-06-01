@@ -18,7 +18,9 @@ package io.aino.agents.wso2.mediator.config;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
 import org.apache.synapse.config.xml.XMLConfigConstants;
 
 /**
@@ -35,13 +37,18 @@ public class AinoMediatorConfigConstants {
         public static final QName ATT_APP_SPECIFIER_KEY_Q = new QName(APP_SPECIFIER_KEY_ATT_NAME);
     }
 
+    // Aino.io configFile name is needed when determining ESB folder structures. 
+    public static final String AINO_CONFIG_FILE_NAME = "ainoLogMediatorConfig.xml";
+
     public static final String ESB_DIR = (System.getenv("CARBON_HOME") != null ? System.getenv("CARBON_HOME") : System
             .getProperty("user.dir"));
 
-    public static final String ESB_CONFIG_DIR = ESB_DIR + "/repository/conf/";
+    public static final String ESB_5_CONFIG_DIR = ESB_DIR + "/repository/conf/";
+    public static final String ESB_6_CONFIG_DIR = ESB_DIR + "/conf/";
+
+    public static final String ESB_CONFIG_DIR = (Files.exists(Paths.get(ESB_6_CONFIG_DIR + AINO_CONFIG_FILE_NAME)) ? ESB_6_CONFIG_DIR : ESB_5_CONFIG_DIR);
 
     public static final String AXIS2_CONFIG_FILE_PATH = ESB_CONFIG_DIR + "axis2/axis2.xml";
-    public static final String AINO_CONFIG_FILE_NAME = "ainoLogMediatorConfig.xml";
     public static final String AINO_CONFIG_FILE_PATH = ESB_CONFIG_DIR + AINO_CONFIG_FILE_NAME;
 
     public static final String DEFAULT_SEPARATOR = ",";

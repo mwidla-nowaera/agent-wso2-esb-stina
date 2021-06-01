@@ -1,6 +1,5 @@
 # WSO2 ESB mediator for Aino.io
 
-![Build status](https://circleci.com/gh/Aino-io/agent-wso2-esb.svg?style=shield&circle-token=71ead89bc64357e87013b71a2e5bf740d1e7fdbb)
 
 WSO2 ESB mediator implementation of Aino.io logging agent.
 
@@ -15,8 +14,9 @@ This Agent helps to store data about the transactions to Aino.io platform using 
 See [API documentation](http://www.aino.io/api) for detailed information about the API.
 
 ## Technical requirements
-* Oracle Java 7
-* WSO2 ESB (Tested with 4.7.0, 4.8.X and 4.9.0)
+* Oracle Java 7/8, Or OpenJDK 8 
+* WSO2 ESB (Tested with 4.7.0, 4.8.X, 4.9.0, 5.0.0)
+* WSO2 Enterprise Integrator EI 6.x (Tested with 6.5) : Aino.io Agent Ver 1.2.6 
 
 ## Example usage
 Before using the agent, it must be configured and copied to directory where ESB can find it.
@@ -24,7 +24,7 @@ After installing and configuring, the agent can be used with `ainoLog` mediator.
 
 ### 1.1 Add as Maven/Gradle/Ivy dependency
 
-Get the dependency snippet from [here](https://bintray.com/aino-io/maven/agent-wso2-esb/view).
+Get the dependency snippet from [here](https://ainoio.jfrog.io/ui/repos/tree/General/default-maven-local%2Fio%2Faino%2Fagents%2FAgentWso2Esb).
 
 ### 1.2 Install the mediator
 Copy the `AgentWso2ESB-x.y.jar` to `$WSO2_ESB_HOME/repository/components/dropins/`.
@@ -32,8 +32,9 @@ Copy the `AgentWso2ESB-x.y.jar` to `$WSO2_ESB_HOME/repository/components/dropins
 ### 2. Configuring the agent
 As WSO2 ESB agent uses [Java agent](https://github.com/Aino-io/agent-java), it must be configured according
 to [Java Agent Configuration](https://github.com/Aino-io/agent-java#configuring-the-agent).
-Java agent configuration should be in `$WSO2_ESB_HOME/repository/conf/ainoLogMediatorConfig.xml`, where
+Java agent configuration should be in `$WSO2_ESB_HOME/repository/conf/ainoLogMediatorConfig.xml` (OR `$WSO2_ESB_HOME/conf/ainoLogMediatorConfig.xml` if you are using IE 6.6), where
 `$WSO2_ESB_HOME` is your WSO2 ESB installation directory.
+NOTE the agent is dependent on ESB axis2 configuration file. `$WSO2_ESB_HOME/repository/conf/axis2/axis2.xml` (OR `$WSO2_ESB_HOME/conf/axis2/axis2.xml` if you are using IE 6.6)
 
 Additionally, one configured 'application' _*must*_ have key `esb`.
 
@@ -103,7 +104,7 @@ The log level can be changed via ESB's Management Console by going to Configure 
 ## Contributing
 
 ### Technical requirements
-* Java 7
+* Oracle Java 7/8, Or OpenJDK 8 
 * Maven 3.X
 * WSO2 ESB
 
