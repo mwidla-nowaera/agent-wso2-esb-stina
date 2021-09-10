@@ -84,6 +84,7 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
      * @throws FileNotFoundException if config files are not found
      */
     public AinoMediatorFactory() throws FileNotFoundException {
+        
         this(new FileInputStream(new File(AINO_CONFIG_FILE_PATH)),
                 new FileInputStream(new File(AXIS2_CONFIG_FILE_PATH)));
     }

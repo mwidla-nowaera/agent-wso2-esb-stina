@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.synapse.config.xml.XMLConfigConstants;
+import org.apache.axiom.soap.impl.llom.SOAPMessageImpl;
 
 /**
  * Utility class for logging.
@@ -50,8 +51,13 @@ public class MediatorLocation {
     public static MediatorLocation getMediatorLocation(OMElement mediatorElement) {
         MediatorLocation ml = new MediatorLocation();
         OMElement artifactElement = getFirstAncestorByName(mediatorElement, ANCESTOR_QNAMES);
-        ml.artifactType = ArtifactType.getArtifactType(artifactElement.getLocalName());
-        ml.artifactName = artifactElement.getAttributeValue(ATT_NAME);
+        if (artifactElement != null) {
+            ml.artifactType = ArtifactType.getArtifactType(artifactElement.getLocalName());
+            ml.artifactName = artifactElement.getAttributeValue(ATT_NAME);
+        } else {
+            ml.artifactType = ArtifactType.getArtifactType("unknown");
+            ml.artifactName = "Unknown name";
+        }
         ml.lineNumber = mediatorElement.getLineNumber();
         return ml;
     }
@@ -61,14 +67,20 @@ public class MediatorLocation {
         set.add(new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "api"));
         set.add(new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "proxy"));
         set.add(new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "sequence"));
+        set.add(new QName(XMLConfigConstants.SYNAPSE_NAMESPACE, "template"));
         return set;
     }
 
     private static OMElement getFirstAncestorByName(OMElement element, Set<QName> qNames) {
         OMElement current = element;
         do {
-            current = (OMElement) current.getParent();
-        } while (!qNames.contains(current.getQName()) || current.getAttributeValue(ATT_NAME) == null);
+            Object parent = current.getParent();
+            if (parent instanceof OMElement) {
+                current = (OMElement) parent;
+            } else {
+                current = null;
+            }
+        } while (current != null && (!qNames.contains(current.getQName()) || current.getAttributeValue(ATT_NAME) == null));
         return current;
     }
 
@@ -105,7 +117,7 @@ public class MediatorLocation {
 
 
     private enum ArtifactType {
-        API("api"), PROXY_SERVICE("proxy", "proxyService"), SEQUENCE("sequence");
+        API("api"), PROXY_SERVICE("proxy", "proxyService"), SEQUENCE("sequence") , TEMPLATE("template"), UNKNOWN("unknown");
 
         private static final Map<String, ArtifactType> artifactTypes;
 
