@@ -93,6 +93,21 @@ OR ver 1.2.5 onward if you wan't to use dynamic message text
     <property expression="//someThirdXpath" name="someThirdProp" />
 </ainoLog>
 
+OR ver 1.2.8 onward you can use dynamic to, from and status (NOTE dynamic status atribute is called statusExpression)   AND you can also you both from and to together 
+<ainoLog statusExpression="$ctx:statusPropertyValue">
+    <operation key="update" />
+    <message expression="//order/orderId" />
+    <ids expression="//order/orderId" typeKey="dataType01" />
+    <ids expression="//order/customerId" typeKey="dataType02" />
+    <to expression="//order/toapplication" />
+    <from expression="$ctx:fromAppliPropertyValue" />
+    <payloadType key="subInterface01" />
+    <!-- Property fields can be used to send additional information (showed in metadata section in Aino.io)-->
+    <property expression="//someXpath" name="someProp" />
+    <property expression="//someOtherXpath" name="someOtherProp" />
+    <property expression="//someThirdXpath" name="someThirdProp" />
+</ainoLog>
+
 ```
 
 All 'keys' must match keys configured in Aino configuration file. Please note that the order of the configuration elements (child elements of ainoLog) must be as specified above (at least for now).

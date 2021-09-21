@@ -174,7 +174,7 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
         mediator.setSeparator(element.getAttributeValue(ATT_SEPARATOR_Q));
 
         // required elements
-        mediator.setStatus(element.getAttributeValue(ATT_STATUS_Q));
+        setMediatorStatus(element, mediator);
         setMediatorApplications(element, mediator);
 
         // optional elements
@@ -212,27 +212,41 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
     private void setMediatorApplications(OMElement element, AinoMediator mediator) {
         OMElement fromElement = element.getFirstChildWithName(FROM_Q);
         OMElement toElement = element.getFirstChildWithName(TO_Q);
-
-        if (fromElement != null) {
-            configureApplicationDirection(Enum.ApplicationDirection.FROM, mediator, fromElement);
-        } else if (toElement != null) {
-            configureApplicationDirection(Enum.ApplicationDirection.TO, mediator, toElement);
-        } else {
+        boolean bothExistsInConfig = fromElement != null && toElement != null;
+        if (fromElement == null && toElement == null) {
             throw new InvalidAgentConfigException("From or To must be defined for Aino.io log");
         }
+        if (fromElement != null) {
+            configureApplicationDirection(Enum.ApplicationDirection.FROM, mediator, fromElement, bothExistsInConfig);
+        }  
+        if (toElement != null) {
+            configureApplicationDirection(Enum.ApplicationDirection.TO, mediator, toElement, bothExistsInConfig);
+        } 
     }
 
-    private void configureApplicationDirection(Enum.ApplicationDirection direction, AinoMediator mediator, OMElement element) {
+    private void configureApplicationDirection(Enum.ApplicationDirection direction, AinoMediator mediator, OMElement element, Boolean bothExistsInConfig) {
         String applicationKey = element.getAttributeValue(ATT_APPLICATION_KEY_Q);
-
-        if (!ainoAgent.applicationExists(applicationKey)) {
-            throw new InvalidAgentConfigException("application does not exist in config: " + applicationKey);
+        if (applicationKey != null){
+            if (!ainoAgent.applicationExists(applicationKey)) {
+                throw new InvalidAgentConfigException("application does not exist in config: " + applicationKey);
+            }
+            mediator.setApplication(direction, applicationKey);
+        }
+        try {
+            if (element.getAttributeValue(ATT_EXPRN) != null) {
+                mediator.setDynamicApplication(direction, SynapseXPathFactory.getSynapseXPath(element, ATT_EXPRN));
+            }
+        } catch (JaxenException e) {
+            StringBuilder sb = new StringBuilder("An invalid xPath expression has been given to a AinoMediator ");
+            sb.append(MESSAGE_Q).append(" element");
+            throw new InvalidAgentConfigException(sb.toString(), e);
         }
 
-        setPayloadTypeFromDeprecatedSpecifier(direction, mediator, element);
-
-        mediator.setApplication(direction, applicationKey);
-        mediator.setApplication(direction.oppositeDirection(), "esb");
+//        setPayloadTypeFromDeprecatedSpecifier(direction, mediator, element);
+        if (bothExistsInConfig == false) {
+            // Only set the other direction as ESB if only one direction was defined on the configs
+            mediator.setApplication(direction.oppositeDirection(), "esb");
+        }
     }
 
     @java.lang.Deprecated //Deprecated in v1.9.4
@@ -278,6 +292,23 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
                 sb.append(IDS_Q).append(" element");
                 throw new InvalidAgentConfigException(sb.toString(), e);
             }
+        }
+    }
+
+    private void setMediatorStatus(OMElement element, AinoMediator mediator) {
+        try {
+            String statusValue = element.getAttributeValue(ATT_STATUS_Q);   
+            if (statusValue != null){
+                mediator.setStatus(statusValue);
+            }
+            // So if for some reason status and statusExpression is placed. statusExpression is ovecrriding and used 
+            if (element.getAttributeValue(ATT_STATUS_EXPRESSION_Q) != null) {
+                mediator.setDynamicStatus(SynapseXPathFactory.getSynapseXPath(element, ATT_STATUS_EXPRESSION_Q));
+            }
+        } catch (JaxenException e) {
+            StringBuilder sb = new StringBuilder("An invalid xPath expression has been given to a AinoMediator ");
+            sb.append(MESSAGE_Q).append(" element");
+            throw new InvalidAgentConfigException(sb.toString(), e);
         }
     }
 

@@ -70,6 +70,7 @@ public class AinoMediatorConfigConstants {
     public static final String ROOT_TAG_NAME = "ainoLog";
 
     public static final String STATUS_ATT_NAME = "status";
+    public static final QName ATT_STATUS_EXPRESSION_Q = new QName("statusExpression");
 
     public static final String APPLICATION_KEY_ATT_NAME = "applicationKey";
     public static final String PAYLOAD_TYPE_ATT_NAME = "key";

@@ -9,21 +9,33 @@
                 <xs:element ref="syn:message" minOccurs="0" />
                 <xs:element ref="syn:ids" minOccurs="0" maxOccurs="unbounded" />
         
-                <xs:choice>
-                    <xs:element ref="syn:from" minOccurs="0" />
-                    <xs:element ref="syn:to" minOccurs="0" />
-                </xs:choice>
+                <xs:element ref="syn:from" minOccurs="0" />
+                <xs:element ref="syn:to" minOccurs="0" />
 
                 <xs:element ref="syn:payloadType" minOccurs="0" maxOccurs="1"/>
                 <xs:element ref="syn:property" minOccurs="0" maxOccurs="unbounded" />
             </xs:sequence>
-      
-            <xs:attribute name="status" type="syn:ainoStatus" />
+
+            <xs:attribute name="status" type="syn:ainoStatus" use="optional" />
+            <xs:attribute name="statusExpression" type="syn:nonEmptyString" use="optional" />
+
             <xs:attribute name="category" type="syn:logCategory" />
             <xs:attribute name="level" type="syn:logLevel" />
             <xs:attribute name="separator" type="syn:nonEmptyString" />
         </xs:complexType>
     </xs:element>
+
+<!--
+    <xs:complexType name="staticStatus">
+      <xsd:sequence/>
+      <xsd:attribute name="status" type="syn:ainoStatus" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="DynamicStatus">
+      <xsd:sequence/>
+      <xsd:attribute name="statusExpression" type="yn:nonEmptyString" use="required"/>
+    </xs:complexType>
+-->
 
     <xs:element name="operation">
         <xs:complexType>
@@ -53,16 +65,28 @@
   
     <xs:element name="from">
         <xs:complexType>
-            <xs:attribute name="applicationKey" type="syn:nonEmptyString" use="required" />
+            <xs:attribute name="applicationKey" type="syn:nonEmptyString" use="optional" />
+            <xs:attribute name="expression" type="syn:nonEmptyString"  use="optional" />
             <xs:attribute name="specifierKey" type="syn:nonEmptyString" use="optional" />
         </xs:complexType>
+        <!-- Validate either applicationKey or expression attribute specified (but not both). -->
+ <!--       <xs:key name="ApplicationKeyOrExpressionAttributePresent">
+            <xs:selector xpath="." />
+            <xs:field xpath="@applicationKey | @expression" />
+        </xs:key> -->
     </xs:element>
   
     <xs:element name="to">
         <xs:complexType>
-            <xs:attribute name="applicationKey" type="syn:nonEmptyString" use="required" />
+            <xs:attribute name="applicationKey" type="syn:nonEmptyString" use="optional" />
+            <xs:attribute name="expression" type="syn:nonEmptyString"  use="optional" />
             <xs:attribute name="specifierKey" type="syn:nonEmptyString" use="optional" />
         </xs:complexType>
+        <!-- Validate either applicationKey or expression attribute specified (but not both). -->
+<!--        <xs:key name="ApplicationKeyOrExpressionAttributePresent">
+            <xs:selector xpath="." />
+            <xs:field xpath="@applicationKey | @expression" />
+        </xs:key>-->
     </xs:element>
   
     <xs:element name="property">

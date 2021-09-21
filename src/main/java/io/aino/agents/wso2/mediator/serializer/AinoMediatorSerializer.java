@@ -120,7 +120,11 @@ public class AinoMediatorSerializer extends AbstractMediatorSerializer {
         }
 
         OMElement toElement = fac.createOMElement(TO_TAG_NAME, synNS);
-        toElement.addAttribute(APPLICATION_KEY_ATT_NAME, toKey, null);
+        if (ainoMediator.getDynamicToApplication() != null){
+            SynapseXPathSerializer.serializeXPath(ainoMediator.getDynamicToApplication(), toElement, ATT_EXPRESSION_Q.getLocalPart());
+        } else {
+            toElement.addAttribute(APPLICATION_KEY_ATT_NAME, toKey, null);
+        }
 
         logElement.addChild(toElement);
     }
@@ -134,9 +138,11 @@ public class AinoMediatorSerializer extends AbstractMediatorSerializer {
         }
 
         OMElement fromElement = fac.createOMElement(FROM_TAG_NAME, synNS);
-        fromElement.addAttribute(APPLICATION_KEY_ATT_NAME, fromKey, null);
-
-
+        if (ainoMediator.getDynamicFromApplication() != null){
+            SynapseXPathSerializer.serializeXPath(ainoMediator.getDynamicFromApplication(), fromElement, ATT_EXPRESSION_Q.getLocalPart());
+        } else {
+            fromElement.addAttribute(APPLICATION_KEY_ATT_NAME, fromKey, null);
+        }
         logElement.addChild(fromElement);
     }
 
@@ -197,12 +203,15 @@ public class AinoMediatorSerializer extends AbstractMediatorSerializer {
     }
 
     private void addStatusToElement(AinoMediator ainoMediator, OMElement logElement) {
-        String status = ainoMediator.getStatus();
+        if (ainoMediator.getDynamicStatus() != null){
+            SynapseXPathSerializer.serializeXPath(ainoMediator.getDynamicStatus(), logElement, ATT_STATUS_EXPRESSION_Q.getLocalPart());
+        } else {
+            String status = ainoMediator.getStatus();
 
-        if(null == status){
-            return;
+            if(null == status){
+                return;
+            }
+            logElement.addAttribute(STATUS_ATT_NAME, status, null);
         }
-
-        logElement.addAttribute(STATUS_ATT_NAME, status, null);
     }
 }

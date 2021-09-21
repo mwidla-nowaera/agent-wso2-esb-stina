@@ -41,10 +41,15 @@ import io.aino.agents.wso2.mediator.util.MediatorLocation;
 
 import static io.aino.agents.wso2.mediator.config.AinoMediatorConfigConstants.*;
 
+import org.apache.axiom.om.OMAttribute;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMText;
+
 /**
  * Aino.io WSO2 ESB mediator.
  */
 public class AinoMediator extends AbstractMediator {
+    public static String UNKNOWN_DYNAMIC_APPLICATION = "UnKnown";
 
     public Agent ainoAgent;
 
@@ -54,9 +59,12 @@ public class AinoMediator extends AbstractMediator {
     private SynapseXPath dynamicMessage = null;
     private String esbServerName;
     private String fromApplication;
+    private SynapseXPath dynamicFromApplication;
     private String toApplication;
+    private SynapseXPath dynamicToApplication;
     private String payloadType;
     private Enum.Status status;
+    private SynapseXPath dynamicStatus;
 
     private final MediatorLocation mediatorLocation;
 
@@ -99,65 +107,7 @@ public class AinoMediator extends AbstractMediator {
         this.ainoAgent = agent;
 
     }
-
-    private static MediatorProperty getMediatorProperty(String name, String value, String expression)
-            throws JaxenException {
-        MediatorProperty mp = new MediatorProperty();
-        mp.setName(name);
-        mp.setValue(value);
-
-        if(null == expression){
-            return mp;
-        }
-
-        invokePropertyExpression(expression, mp);
-        return mp;
-    }
-
-    private static Object invokePropertyExpression(String expression, MediatorProperty mp) {
-        try {
-            // Workaround for a peculiar WSO2 update approach where an
-            // intermediate (SynapsePath) class was added into the class
-            // hierarchy
-            Class<?> parameterClass = getParameterClass();
-            Class<?> synapseXPathClass = getSynapseXpathClass();
-            Method setExpression = MediatorProperty.class.getMethod("setExpression", parameterClass);
-            return setExpression.invoke(mp, synapseXPathClass.getConstructor(String.class).newInstance(expression));
-        } catch (Exception e) {
-            throw new InvalidAgentConfigException(
-                    "Unable to initialize a AinoMediator due to a reflection-related exception.", e);
-        }
-    }
-
-    private static Class<?> getSynapseXpathClass(){
-        return getClassForName("org.apache.synapse.util.xpath.SynapseXPath");
-    }
-
-    private static Class<?> getParameterClass(){
-        return getClassForName(getParameterClassName());
-    }
-
-    private static Class<?> getClassForName(String name){
-        try {
-            return Class.forName(name);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Could not instantiate class: " + name);
-        }
-    }
-
-    private static String getParameterClassName(){
-        String esb480OrLater = "org.apache.synapse.config.xml.SynapsePath";
-        String beforeEsb480 = "org.apache.synapse.util.xpath.SynapseXPath";
-        try {
-            // If running in ESB v4.8.0 or newer
-            Class.forName(esb480OrLater);
-            return esb480OrLater;
-        } catch (ClassNotFoundException e) {
-            // If running in ESB older than v4.8.0
-            return beforeEsb480;
-        }
-    }
-
+    
     /**
      * Adds id xpath with id type key.
      *
@@ -252,14 +202,38 @@ public class AinoMediator extends AbstractMediator {
     private void processTransaction(MessageContext context, Transaction transaction) {
         if(transaction == null) { return; }
         addFieldsToTransaction(transaction);
+        
+        
+        // status atribute handling moved to here since it can be dynamically defined          
+        if (this.getDynamicStatus() != null) {
+            transaction.setStatus(processDynamicStatus(context));
+        } else {
+            // Static status attribute was used 
+            transaction.setStatus(this.status == null ? "" : this.status.toString());
+        }
+
         // If message is given as dynamic expression. Process it here. 
-        String calculatedMessage = processDynamicMessage(context);
-        if (calculatedMessage != null) {
-            transaction.setMessage(calculatedMessage);
+        if (this.getDynamicMessage() != null) {
+            transaction.setMessage(processDynamicMessage(context));
         } else {
             // Static value attribute was used 
             transaction.setMessage(this.message);
         }
+
+        // From and to applications movoved to here since those can be dynamically defined          
+        if (this.getDynamicFromApplication() != null) {
+            transaction.setFromKey(processDynamicApplication(Enum.ApplicationDirection.FROM, context));
+        } else {
+            // Static value attribute was used 
+            transaction.setFromKey(this.fromApplication);
+        }
+        if (this.getDynamicToApplication() != null) {
+            transaction.setToKey(processDynamicApplication(Enum.ApplicationDirection.TO, context));
+        } else {
+            // Static value attribute was used 
+            transaction.setToKey(this.toApplication);
+        }
+            
             
 
         for (MediatorProperty property : customProperties) {
@@ -280,9 +254,6 @@ public class AinoMediator extends AbstractMediator {
     }
 
     private void addFieldsToTransaction(Transaction transaction) {
-        transaction.setFromKey(this.fromApplication);
-        transaction.setToKey(this.toApplication);
-        transaction.setStatus(this.status == null ? "" : this.status.toString());
         transaction.setPayloadTypeKey(this.payloadType);
     }
 
@@ -509,7 +480,7 @@ public class AinoMediator extends AbstractMediator {
             try {
                 Object evaluationResult = dynamicMessage.evaluate(context);
                 if (evaluationResult != null){
-                    return evaluationResult.toString();
+                    return getExpressionValue(evaluationResult);
                 }
             } catch (JaxenException e) {
                 StringBuilder sb = new StringBuilder("Error while resolving the dynamic message");
@@ -556,6 +527,31 @@ public class AinoMediator extends AbstractMediator {
     public void setFromApplication(String fromApplication) {
         this.fromApplication = fromApplication;
     }
+  
+      /** If From is given as expression then the expression value it is set to this variable. 
+     * And actual referenced value is calculated on processDynamicApplication when needed 
+     * 
+     * Example   
+     *    <property name="myValue" value="theApplicationName"/>
+     *    <ainoLog status="failure">
+     *       <operation key="myOper"/>
+     *       <message value="MyMessage"/>
+     *       <from expression="//koe"/>
+     *       <to expression="$ctx:myValue"/>
+     *       <payloadType key="delivery"/>
+     *    </ainoLog>
+     * */
+    public void setDynamicFromApplication(SynapseXPath xpath){
+        this.dynamicFromApplication= xpath;
+    }
+
+    /**
+     *  Returns the expression of from 
+     * @return
+     */
+    public  SynapseXPath getDynamicFromApplication(){
+        return this.dynamicFromApplication;
+    }
 
     /**
      * Gets configured 'to' application.
@@ -573,6 +569,119 @@ public class AinoMediator extends AbstractMediator {
      */
     public void setToApplication(String toApplication) {
         this.toApplication = toApplication;
+    }
+
+    /** If To is given as expression then the expression value it is set to this variable. 
+     * And actual referenced value is calculated on processDynamicApplication when needed 
+     * 
+     * Example   
+     *    <property name="myValue" value="theApplicationName"/>
+     *    <ainoLog status="failure">
+     *       <operation key="myOper"/>
+     *       <message value="MyMessage"/>
+     *       <from expression="//koe"/>
+     *       <to expression="$ctx:myValue"/>
+     *       <payloadType key="delivery"/>
+     *    </ainoLog>
+     * */
+    public void setDynamicToApplication(SynapseXPath xpath){
+        this.dynamicToApplication= xpath;
+    }
+
+    /**
+     *  Returns the expression of from 
+     * @return
+     */
+    public  SynapseXPath getDynamicToApplication(){
+        return this.dynamicToApplication;
+    }
+
+  /**
+     * Sets 'to' or 'from' application, based on direction.
+     *
+     * @param direction direction
+     * @param applicationKey application key
+     */
+    public void setApplication(Enum.ApplicationDirection direction, String applicationKey) {
+        switch (direction) {
+            case TO:
+                this.setToApplication(applicationKey);
+                break;
+            case FROM:
+                this.setFromApplication(applicationKey);
+                break;
+        }
+    }
+
+    /**
+     *  Process 'to' or 'from' application based on direction 
+     * This will calculated the outcome of the expression value set for the 'to' or 'from'  
+     * @param direction
+     * @param context
+     * @return The calculated value based on the messagecontext and expression.  OR null if value is not found
+     */
+    protected String processDynamicApplication(Enum.ApplicationDirection direction, MessageContext context){
+        SynapseXPath expression = null;
+        switch (direction) {
+            case TO:
+                expression =  this.getDynamicToApplication();
+                break;
+            case FROM:
+                expression =  this.getDynamicFromApplication();
+                break;
+        }
+        String applicationKey = null;
+        Boolean applicationKeyExist = false;
+        if (expression != null) {
+            try {
+                Object evaluationResult = expression.evaluate(context);
+                if (evaluationResult != null){
+                    applicationKey = getExpressionValue(evaluationResult);
+                    if (ainoAgent.applicationExists(applicationKey)) {
+                        applicationKeyExist = true;
+                        return applicationKey;
+                    }                    
+                }
+            } catch (JaxenException e) {
+                StringBuilder sb = new StringBuilder("Error while resolving the dynamic Application of direction ");
+                sb.append(direction.toString());
+                sb.append(" XPath expression: ").append(expression.toString());
+                sb.append(" Exception message: ").append(e.getMessage());
+                log.warn(sb.toString(), e);
+            }
+            if (applicationKeyExist == false){
+                // The dynamic application name is NOT in the configs OR the Xpath was corrupted. 
+                // So lets use UnKnown application name
+                // NOTE we add the UnKnown application name dynamically if it does not yet exist.                          
+                String origApplicationKey = applicationKey;
+                applicationKey = UNKNOWN_DYNAMIC_APPLICATION;
+                if (!ainoAgent.applicationExists(applicationKey)) {
+                    ainoAgent.getAgentConfig().getApplications().addEntry(UNKNOWN_DYNAMIC_APPLICATION, UNKNOWN_DYNAMIC_APPLICATION);
+                }   
+                StringBuilder sb = new StringBuilder("Error while resolving the dynamic Application of direction ");
+                sb.append(direction.toString());
+                sb.append(" using XPath expression: ").append(expression.toString());
+                sb.append(" Exception message: application does not exist in config, name of application: ").append(origApplicationKey).append(" Doing fallback and using UnKnown as application name");
+                log.warn(sb.toString());                                     
+            }
+        }
+        return applicationKey;
+    }
+
+    /**
+     * Set expression value of dynamic 'to' or 'from' based on direction  
+     * @param direction
+     * @param xpath
+     */
+    public void setDynamicApplication(Enum.ApplicationDirection direction, SynapseXPath xpath) {
+        switch (direction) {
+            case TO:
+                this.setDynamicToApplication(xpath);
+                break;
+            case FROM:
+                this.setDynamicFromApplication(xpath);
+                break;
+        }
     }
 
     /**
@@ -605,6 +714,61 @@ public class AinoMediator extends AbstractMediator {
         return status.toString();
     }
 
+    /** If Status is given as expression then the expression value it is set to this variable. 
+     * And actual referenced value is calculated on processDynamicApplication when needed 
+     *  NOTE the actual values of status still must be success, failure OR unknonw 
+     * Example   
+     *    <property name="myValue" value="failure"/>
+     *    <ainoLog statusExpression="$ctx:myValue">
+     *     .... 
+     * 
+     * Compared to the static status
+     *    <ainoLog status="failure">
+     *      ..... 
+     * */
+    public void setDynamicStatus(SynapseXPath xpath){
+        this.dynamicStatus= xpath;
+    }
+
+    /**
+     *  Returns the expression of from 
+     * @return
+     */
+    public  SynapseXPath getDynamicStatus(){
+        return this.dynamicStatus;
+    }
+
+    protected String processDynamicStatus(MessageContext context){
+        SynapseXPath expression = this.getDynamicStatus();
+        String calculatedStatus = null;
+        Enum.Status status = null;
+        if (expression != null) {
+            try {
+                Object evaluationResult = expression.evaluate(context);
+                if (evaluationResult != null){
+                    calculatedStatus = getExpressionValue(evaluationResult);
+                    status = Enum.Status.getStatus(calculatedStatus);
+                }
+            } catch (JaxenException e) {
+                StringBuilder sb = new StringBuilder("Error while resolving the dynamic Status  ");
+                sb.append(" XPath expression: ").append(expression.toString());
+                sb.append(" Exception message: ").append(e.getMessage());
+                log.warn(sb.toString(), e);
+            }
+            if (status == null){
+                // The dynamic status is NOT valid status OR the Xpath was corrupted. 
+                // So lets use UnKnown as status 
+                status = Enum.Status.UNKNOWN;
+                StringBuilder sb = new StringBuilder("Error while resolving the dynamic Status ");
+                sb.append(" using XPath expression: ").append(expression.toString());
+                sb.append(" Exception message: Can not calculate valid status from given value: ").append(calculatedStatus).append(" Doing fallback and using unknown as status");
+                log.warn(sb.toString());                                     
+            }
+        }
+        return status.toString();
+    }
+
+    
     /**
      * Sets status.
      * Valid values are: "success", "failure" and "unknown".
@@ -633,21 +797,46 @@ public class AinoMediator extends AbstractMediator {
         return idList;
     }
 
+
     /**
-     * Sets 'to' or 'from' application, based on direction.
-     *
-     * @param direction direction
-     * @param applicationKey application key
+     *  Return the data of evaluated, NOTE if the Xpath finds several values. This returns ONLY the first found value 
+     * @param evaluationResult
+     * @return
      */
-    public void setApplication(Enum.ApplicationDirection direction, String applicationKey) {
-        switch (direction) {
-            case TO:
-                this.setToApplication(applicationKey);
-                break;
-            case FROM:
-                this.setFromApplication(applicationKey);
-                break;
+    @SuppressWarnings("unchecked")
+    private String getExpressionValue(Object evaluationResult) {
+        List<String> transactionIdList = new ArrayList<String>();
+        if (evaluationResult instanceof List) {
+            List<String> entryList = getValuesFromList((List<Object>) evaluationResult);
+            transactionIdList.addAll(entryList);
+        } else {
+            transactionIdList.add(String.valueOf(evaluationResult));
         }
+        if (transactionIdList.size() > 0){
+            return transactionIdList.get(0);
+        }
+        return null;
     }
 
+    private List<String> getValuesFromList(List<Object> results) {
+        List<String> transactionIdList = new ArrayList<String>();
+        for (Object result : results) {
+            String idString = getSingleValue(result);
+            if (StringUtils.isNotEmpty(idString)) {
+                transactionIdList.add(idString);
+            }
+        }
+        return transactionIdList;
+    }
+
+    private String getSingleValue(Object result) {
+        if (result instanceof OMElement) {
+            return ((OMElement) result).getText();
+        } else if (result instanceof OMAttribute) {
+            return ((OMAttribute) result).getAttributeValue();
+        } else if (result instanceof OMText) {
+            return ((OMText) result).getText();
+        }
+        return null;
+    }
 }
