@@ -39,7 +39,8 @@
 
     <xs:element name="operation">
         <xs:complexType>
-            <xs:attribute name="key" type="syn:nonEmptyString" />
+            <xs:attribute name="key" type="syn:nonEmptyString" use="optional"/>
+            <xs:attribute name="expression" type="syn:nonEmptyString"  use="optional" />
         </xs:complexType>
     </xs:element>
 

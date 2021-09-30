@@ -49,12 +49,14 @@ import org.apache.axiom.om.OMText;
  * Aino.io WSO2 ESB mediator.
  */
 public class AinoMediator extends AbstractMediator {
-    public static String UNKNOWN_DYNAMIC_APPLICATION = "UnKnown";
+    public static String UNKNOWN_DYNAMIC_APPLICATION = "UnKnown_App";
+    public static String UNKNOWN_DYNAMIC_OPERATION = "UnKnown_Operation";
 
     public Agent ainoAgent;
 
     private String separator;
     private String operation;
+    private SynapseXPath dynamicOperation = null;
     private String message;
     private SynapseXPath dynamicMessage = null;
     private String esbServerName;
@@ -202,8 +204,13 @@ public class AinoMediator extends AbstractMediator {
     private void processTransaction(MessageContext context, Transaction transaction) {
         if(transaction == null) { return; }
         addFieldsToTransaction(transaction);
-        
-        
+
+        // Dynamic operation handling. If Dynamic operation is given. it will override any other style of giving the operation name           
+        // The static value of operation handlig is doen prio of this. So we only check do we need to override it 
+        if (this.getDynamicOperation() != null) {
+            transaction.setOperationKey(processDynamicOperation(context));
+        } 
+                
         // status atribute handling moved to here since it can be dynamically defined          
         if (this.getDynamicStatus() != null) {
             transaction.setStatus(processDynamicStatus(context));
@@ -448,6 +455,53 @@ public class AinoMediator extends AbstractMediator {
     public void setOperation(String operation) {
         this.operation = operation;
     }
+
+    public void setDynamicOperation(SynapseXPath xpath){
+        this.dynamicOperation = xpath;
+    }
+
+    public  SynapseXPath getDynamicOperation(){
+        return this.dynamicOperation;
+    }
+
+    protected String processDynamicOperation(MessageContext context){
+        SynapseXPath expression = this.dynamicOperation;
+        String operationKey = null;
+        Boolean operationKeyExist = false;
+        if (expression != null) {
+            try {
+                Object evaluationResult = expression.evaluate(context);
+                if (evaluationResult != null){
+                    operationKey = getExpressionValue(evaluationResult);
+                    if (ainoAgent.operationExists(operationKey)) {
+                        operationKeyExist = true;
+                        return operationKey;
+                    }                    
+                }
+            } catch (JaxenException e) {
+                StringBuilder sb = new StringBuilder("Error while resolving the dynamic operation  ");
+                sb.append(" XPath expression: ").append(expression.toString());
+                sb.append(" Exception message: ").append(e.getMessage());
+                log.warn(sb.toString(), e);
+            }
+            if (operationKeyExist == false){
+                // The dynamic operation name is NOT in the configs OR the Xpath was corrupted. 
+                // So lets use UnKnown operation name
+                // NOTE we add the UnKnown application name dynamically if it does not yet exist.                          
+                String origOperationKey = operationKey;
+                operationKey = UNKNOWN_DYNAMIC_OPERATION;
+                if (!ainoAgent.applicationExists(operationKey)) {
+                    ainoAgent.getAgentConfig().getOperations().addEntry(UNKNOWN_DYNAMIC_OPERATION, UNKNOWN_DYNAMIC_OPERATION);
+                }   
+                StringBuilder sb = new StringBuilder("Error while resolving the dynamic operation ");
+                sb.append(" using XPath expression: ").append(expression.toString());
+                sb.append(" Exception message: operation does not exist in config, name of operation: ").append(origOperationKey).append(" Doing fallback and using UnKnown as operation name");
+                log.warn(sb.toString());                                     
+            }
+        }
+        return operationKey;
+    }
+
 
     /**
      * Gets message configured to this mediator.

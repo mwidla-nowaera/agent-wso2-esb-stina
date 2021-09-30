@@ -103,6 +103,15 @@ public class AinoMediatorSerializerTest {
     }
 
 
+    @Test
+    public void serializerSetDynamicOperationTest() throws Exception {
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_ALL_ELEMENTS_DYNAMIC_OPERATION);
+
+        OMAttribute attribute = serializeAndFindAttribute(m, "operation", "expression");
+
+        assertEquals("//order/operation", attribute.getAttributeValue());
+    }
+
     
     @Test
     public void serializerSetDynamicFromApplicationTest() throws Exception {

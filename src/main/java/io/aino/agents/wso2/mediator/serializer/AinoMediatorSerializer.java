@@ -177,14 +177,16 @@ public class AinoMediatorSerializer extends AbstractMediatorSerializer {
     }
 
     private void addOperationToElement(AinoMediator ainoMediator, OMElement logElement) {
-        String operation = ainoMediator.getOperation();
-
-        if(null == operation){
+        if(ainoMediator.getOperation() == null && ainoMediator.getDynamicOperation() == null){
             return;
         }
-
         OMElement operationElement = fac.createOMElement(OPERATION_TAG_NAME, synNS);
-        operationElement.addAttribute(ATT_KEY_Q.getLocalPart(), operation, null);
+        if (ainoMediator.getDynamicOperation() != null) {
+            SynapseXPathSerializer.serializeXPath(ainoMediator.getDynamicOperation(), operationElement, ATT_EXPRESSION_Q.getLocalPart());
+        } else {
+            String operation = ainoMediator.getOperation();
+            operationElement.addAttribute(ATT_KEY_Q.getLocalPart(), operation, null);
+            }
 
         logElement.addChild(operationElement);
     }

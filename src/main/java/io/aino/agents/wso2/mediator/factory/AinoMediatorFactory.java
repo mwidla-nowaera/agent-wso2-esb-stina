@@ -333,18 +333,29 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
         OMElement operationElement = element.getFirstChildWithName(OPERATION_Q);
         if (operationElement != null) {
             String operationKey = operationElement.getAttributeValue(ATT_KEY);
+            if (operationKey != null) {
+                if (!ainoAgent.operationExists(operationKey)) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Invalid ").append(ATT_KEY).append(" attribute of ").append(operationKey).append(" at ");
+                    sb.append(OPERATION_Q).append(" element.");
+                    sb.append("Valid values are specified in the Aino.io configuration file.");
 
-            if (!ainoAgent.operationExists(operationKey)) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("Invalid ").append(ATT_KEY).append(" attribute of ").append(operationKey).append(" at ");
-                sb.append(OPERATION_Q).append(" element.");
-                sb.append("Valid values are specified in the Aino.io configuration file.");
-
-                throw new InvalidAgentConfigException(sb.toString());
-            } else {
-                mediator.setOperation(operationKey);
+                    throw new InvalidAgentConfigException(sb.toString());
+                } else {
+                    mediator.setOperation(operationKey);
+                }
+            }
+            try {
+                if (operationElement.getAttributeValue(ATT_EXPRN) != null) {
+                    mediator.setDynamicOperation(SynapseXPathFactory.getSynapseXPath(operationElement, ATT_EXPRN));
+                }
+            } catch (JaxenException e) {
+                StringBuilder sb = new StringBuilder("An invalid xPath expression has been given to a AinoMediator ");
+                sb.append(MESSAGE_Q).append(" element");
+                throw new InvalidAgentConfigException(sb.toString(), e);
             }
         }
+
     }
 
     private void validateMediatorConfig(OMElement element) throws SAXException, IOException {
