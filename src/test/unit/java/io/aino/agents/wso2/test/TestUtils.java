@@ -42,7 +42,11 @@ public class TestUtils {
 
     public static String SYNAPSE_NAMESPACE = XMLConfigConstants.SYNAPSE_NAMESPACE;
      
-        
+    
+    
+    public static String AINO_PROXY_CONFIG_ALL_ELEMENTS_STATIC_MULTIIDS = "/validAinoConfigAllElementsStaticMultiids.xml";
+    public static String AINO_PROXY_CONFIG_ALL_ELEMENTS_DYNAMIC_MULTIIDS = "/validAinoConfigAllElementsDynamicMultiids.xml";
+    public static String AINO_PROXY_CONFIG_ALL_ELEMENTS_DYNAMIC_PAYLOADTYPE = "/validAinoConfigAllElementsDynamicPayload.xml";
     public static String AINO_PROXY_CONFIG_ALL_ELEMENTS_DYNAMIC_OPERATION = "/validAinoConfigAllElementsDynamicOperation.xml";
     public static String AINO_PROXY_CONFIG_ALL_ELEMENTS_DYNAMIC_STATUS = "/validAinoConfigAllElementsDynamicStatus.xml";
     public static String AINO_PROXY_CONFIG_ALL_ELEMENTS_STATIC_FROM_STATIC_TO = "/validAinoConfigAllElementsStaticFomApplicatioAndStaticToApplication.xml";

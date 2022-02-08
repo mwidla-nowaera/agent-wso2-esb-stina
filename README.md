@@ -93,7 +93,7 @@ OR ver 1.2.5 onward if you wan't to use dynamic message text
     <property expression="//someThirdXpath" name="someThirdProp" />
 </ainoLog>
 
-OR ver 1.2.8 onward you can use dynamic to, from and status (NOTE dynamic status atribute is called statusExpression)   AND you can also you both from and to together 
+OR ver 1.2.8 onward you can use dynamic to, from and status (NOTE dynamic status atribute is called statusExpression)   AND you can also use both from and to elements together 
 <ainoLog statusExpression="$ctx:statusPropertyValue">
     <operation key="update" />
     <message expression="//order/orderId" />
@@ -122,6 +122,26 @@ OR ver 1.2.9 onward you can also use dynamic operation
     <property expression="//someOtherXpath" name="someOtherProp" />
     <property expression="//someThirdXpath" name="someThirdProp" />
 </ainoLog>
+
+
+OR ver 1.2.10 onward you can also use dynamic payloadType 
+New field called multiids, can be used to give multible different values for different IdTypes 
+ Sample: first_id=1722||uuid=34565||some_other_id=value1,value2||some_other_id2=xxx 
+<ainoLog statusExpression="$ctx:statusPropertyValue">
+    <operation expression="//order/operation" />
+    <message expression="//order/orderId" />
+    <ids expression="//order/orderId" typeKey="dataType01" />
+    <ids expression="//order/customerId" typeKey="dataType02" />
+    <multiids expression="//order/customerId" />   <!-- Also valid with static value attribute: <multiids value"someStatic value"/> -->
+    <to expression="//order/toapplication" />
+    <from expression="$ctx:fromAppliPropertyValue" />
+    <payloadType expression="//order/payloadtype" />
+    <!-- Property fields can be used to send additional information (showed in metadata section in Aino.io)-->
+    <property expression="//someXpath" name="someProp" />
+    <property expression="//someOtherXpath" name="someOtherProp" />
+    <property expression="//someThirdXpath" name="someThirdProp" />
+</ainoLog>
+
 
 ```
 

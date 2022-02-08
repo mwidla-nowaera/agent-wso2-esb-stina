@@ -8,6 +8,7 @@
                 <xs:element ref="syn:operation" minOccurs="0" />
                 <xs:element ref="syn:message" minOccurs="0" />
                 <xs:element ref="syn:ids" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element ref="syn:multiids" minOccurs="0" maxOccurs="1" />
         
                 <xs:element ref="syn:from" minOccurs="0" />
                 <xs:element ref="syn:to" minOccurs="0" />
@@ -46,7 +47,8 @@
 
     <xs:element name="payloadType">
         <xs:complexType>
-            <xs:attribute name="key" type="syn:nonEmptyString" use="required" />
+            <xs:attribute name="key" type="syn:nonEmptyString" use="optional" />
+            <xs:attribute name="expression" type="syn:nonEmptyString"  use="optional" />
         </xs:complexType>
     </xs:element>
   
@@ -61,6 +63,13 @@
         <xs:complexType>
             <xs:attribute name="typeKey" type="syn:nonEmptyString" use="required" />
             <xs:attribute name="expression" type="syn:nonEmptyString" use="required" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="multiids">
+        <xs:complexType>
+                <xs:attribute name="value" type="syn:nonEmptyString"  use="optional" />
+                <xs:attribute name="expression" type="syn:nonEmptyString"  use="optional" />
         </xs:complexType>
     </xs:element>
   

@@ -181,6 +181,7 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
         setMediatorOperation(element, mediator);
         setMediatorMessage(element, mediator);
         setMediatorIds(element, mediator);
+        setMediatorMultiids(element, mediator);
         setMediatorPayloadType(element, mediator);
 
         mediator.setEsbServerName(esbServerName);
@@ -192,21 +193,30 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
 
     private void setMediatorPayloadType(OMElement element, AinoMediator mediator) {
         OMElement payloadTypeElement = element.getFirstChildWithName(PAYLOAD_Q);
-        if(payloadTypeElement == null) { return; }
+        if (payloadTypeElement != null) {
+            String payloadTypeKey = payloadTypeElement.getAttributeValue(ATT_PAYLOAD_TYPE_KEY_Q);
+            if (payloadTypeKey != null) {
+                if (!ainoAgent.payloadTypeExists(payloadTypeKey)) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Invalid ").append(ATT_KEY).append(" attribute of ").append(payloadTypeKey).append(" at ");
+                    sb.append(PAYLOAD_Q).append(" element.");
+                    sb.append("Valid values are specified in the Aino.io configuration file.");
 
-        String payloadTypeKey = payloadTypeElement.getAttributeValue(ATT_PAYLOAD_TYPE_KEY_Q);
-
-        if (!ainoAgent.payloadTypeExists(payloadTypeKey)) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Invalid ").append(ATT_KEY).append(" attribute of ").append(payloadTypeKey).append(" at ");
-            sb.append(PAYLOAD_Q).append(" element.");
-            sb.append("Valid values are specified in the Aino.io configuration file.");
-
-            throw new InvalidAgentConfigException(sb.toString());
+                    throw new InvalidAgentConfigException(sb.toString());
+                } else {
+                    mediator.setPayloadType(payloadTypeKey);
+                }
+            }
+            try {
+                if (payloadTypeElement.getAttributeValue(ATT_EXPRN) != null) {
+                    mediator.setDynamicPayloadType(SynapseXPathFactory.getSynapseXPath(payloadTypeElement, ATT_EXPRN));
+                }
+            } catch (JaxenException e) {
+                StringBuilder sb = new StringBuilder("An invalid xPath expression has been given to a AinoMediator ");
+                sb.append(PAYLOAD_Q).append(" element");
+                throw new InvalidAgentConfigException(sb.toString(), e);
+            }
         }
-
-        mediator.setPayloadType(payloadTypeKey);
-
     }
 
     private void setMediatorApplications(OMElement element, AinoMediator mediator) {
@@ -290,6 +300,35 @@ public class AinoMediatorFactory extends AbstractMediatorFactory {
             } catch (JaxenException e) {
                 StringBuilder sb = new StringBuilder("An invalid xPath expression has been given to a AinoMediator ");
                 sb.append(IDS_Q).append(" element");
+                throw new InvalidAgentConfigException(sb.toString(), e);
+            }
+        }
+    }
+
+    private void setMediatorMultiids(OMElement element, AinoMediator mediator) {
+        OMElement multiidsElement = element.getFirstChildWithName(MULTIIDS_Q);
+        if (multiidsElement != null) {
+            String multiidsValue = multiidsElement.getAttributeValue(ATT_VALUE);
+            if (multiidsValue != null) {
+                mediator.setMultiids(multiidsValue);
+                //  if (!ainoAgent.getAgentConfig().getIdTypes().entryExists(typeKey)) {
+                //     StringBuilder sb = new StringBuilder();
+                //     sb.append("Invalid ").append(ATT_VALUE).append(" attribute of ").append(multiidsValue).append(" at ");
+                //     sb.append(MULTIIDS_Q).append(" element.");
+                //     sb.append("Valid values are specified in the Aino.io configuration file.");
+
+                //     throw new InvalidAgentConfigException(sb.toString());
+                // } else {
+                //     mediator.setMultiids(multiidsValue);
+                // }
+            }
+            try {
+                if (multiidsElement.getAttributeValue(ATT_EXPRN) != null) {
+                    mediator.setDynamicMultiids(SynapseXPathFactory.getSynapseXPath(multiidsElement, ATT_EXPRN));
+                }
+            } catch (JaxenException e) {
+                StringBuilder sb = new StringBuilder("An invalid xPath expression has been given to a AinoMediator ");
+                sb.append(MULTIIDS_Q).append(" element");
                 throw new InvalidAgentConfigException(sb.toString(), e);
             }
         }

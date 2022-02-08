@@ -83,6 +83,7 @@ public class AinoMediatorConfigConstants {
     public static final String FROM_TAG_NAME = "from";
     public static final String TO_TAG_NAME = "to";
     public static final String PAYLOAD_TAG_NAME = "payloadType";
+    public static final String MULTIIDS_TAG_NAME = "multiids";
 
 
     public static final QName ATT_SEPARATOR_Q = new QName("separator");
@@ -115,6 +116,7 @@ public class AinoMediatorConfigConstants {
     public static final QName FROM_Q = new QName(NAMESPACE_STRING, FROM_TAG_NAME);
     public static final QName TO_Q = new QName(NAMESPACE_STRING, TO_TAG_NAME);
     public static final QName PAYLOAD_Q = new QName(NAMESPACE_STRING, PAYLOAD_TAG_NAME);
+    public static final QName MULTIIDS_Q = new QName(NAMESPACE_STRING, MULTIIDS_TAG_NAME);
 
     public static final String AINO_OPERATION_KEY_PROPERTY_NAME = "ainoOperationName";
     public static final String AINO_IDS_PROPERTY_NAME = "ainoIds";

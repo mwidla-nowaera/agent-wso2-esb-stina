@@ -104,6 +104,34 @@ public class AinoMediatorSerializerTest {
 
 
     @Test
+    public void serializerSetDynamicPayloadTypeTest() throws Exception {
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_ALL_ELEMENTS_DYNAMIC_PAYLOADTYPE);
+
+        OMAttribute attribute = serializeAndFindAttribute(m, "payloadType", "expression");
+
+        assertEquals("//order/payloadtype", attribute.getAttributeValue());
+    }
+
+    @Test
+    public void serializerSetStaticMultiidsTest() throws Exception {
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_ALL_ELEMENTS_STATIC_MULTIIDS);
+
+        OMAttribute attribute = serializeAndFindAttribute(m, "multiids", "value");
+
+        assertEquals("type_one=2||type_two=5", attribute.getAttributeValue());
+    }
+
+    @Test
+    public void serializerSetDynamicMultiidsTest() throws Exception {
+        AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_ALL_ELEMENTS_DYNAMIC_MULTIIDS);
+
+        OMAttribute attribute = serializeAndFindAttribute(m, "multiids", "expression");
+
+        assertEquals("//order/multiids", attribute.getAttributeValue());
+    }
+
+
+    @Test
     public void serializerSetDynamicOperationTest() throws Exception {
         AinoMediator m = (AinoMediator) TestUtils.createMockedAinoLogMediator(factory, TestUtils.AINO_PROXY_CONFIG_ALL_ELEMENTS_DYNAMIC_OPERATION);
 

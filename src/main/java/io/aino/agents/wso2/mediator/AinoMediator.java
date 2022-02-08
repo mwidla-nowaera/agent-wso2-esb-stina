@@ -51,6 +51,8 @@ import org.apache.axiom.om.OMText;
 public class AinoMediator extends AbstractMediator {
     public static String UNKNOWN_DYNAMIC_APPLICATION = "UnKnown_App";
     public static String UNKNOWN_DYNAMIC_OPERATION = "UnKnown_Operation";
+    public static String UNKNOWN_DYNAMIC_PAYLOADTYPE = "UnKnown_Payload";
+    public static String UNKNOWN_DYNAMIC_IDTYPE = "UnKnown_IDType";
 
     public Agent ainoAgent;
 
@@ -61,12 +63,15 @@ public class AinoMediator extends AbstractMediator {
     private SynapseXPath dynamicMessage = null;
     private String esbServerName;
     private String fromApplication;
-    private SynapseXPath dynamicFromApplication;
+    private SynapseXPath dynamicFromApplication = null;
     private String toApplication;
-    private SynapseXPath dynamicToApplication;
+    private SynapseXPath dynamicToApplication = null;
     private String payloadType;
+    private SynapseXPath dynamicPayloadType = null;
     private Enum.Status status;
-    private SynapseXPath dynamicStatus;
+    private SynapseXPath dynamicStatus = null;
+    private String multiids;
+    private SynapseXPath dynamicMultiids = null;
 
     private final MediatorLocation mediatorLocation;
 
@@ -94,6 +99,7 @@ public class AinoMediator extends AbstractMediator {
             "timestamp",
             "operation",
             "ids",
+            "multiids",
             "flowId",
             "payloadType"
     ));
@@ -147,6 +153,7 @@ public class AinoMediator extends AbstractMediator {
 
             Transaction transaction = createTransaction(context);
             new IdPropertyBuilder(this.idList).buildToContext(context, transaction);
+            processMultiids(context, transaction);
             processTransaction(context, transaction);
             logToEsb(context, transaction);
         } catch (Exception e) {
@@ -201,16 +208,68 @@ public class AinoMediator extends AbstractMediator {
     }
 
 
+    private void processMultiids(MessageContext context, Transaction transaction) {
+        String multiidsValues = null;    
+        // If PayloadType is given as dynamic expression. Process it here. 
+        if (this.getDynamicMultiids() != null) {
+            multiidsValues = processDynamicMultiids(context);
+        } else {
+            // Static value was used 
+            multiidsValues = this.multiids;
+        } 
+
+        if (multiidsValues != null) {
+            //Sample whole multiidsValues: some_other_id=value1,value2||some_other_id2=xxx 
+            String[] multiids = multiidsValues.split("\\|\\|");
+            // Adfter split first item in list is : some_other_id=value1,value2
+            for (String idTypeAndValues : multiids) {
+                String[] idTypeAndValuesArray = idTypeAndValues.split("=");
+                // Split to two parts the type: some_other_id and the value:value1,value2
+                if (idTypeAndValuesArray.length == 2) {
+                    String idType = idTypeAndValuesArray[0];
+                    if (!ainoAgent.getAgentConfig().getIdTypes().entryExists(idType)) {
+                        StringBuilder sb = new StringBuilder("An invalid id type key has been given to a AinoMediator ");
+                        sb.append(idType).append(" element, using Unknown as id type");
+                        log.warn(sb.toString());
+                        idType = UNKNOWN_DYNAMIC_IDTYPE;
+                        if (!ainoAgent.getAgentConfig().getIdTypes().entryExists(idType)) { 
+                            // Add the unknown id type to the list of id types, if it is not already there.
+                            ainoAgent.getAgentConfig().getIdTypes().addEntry(idType, idType);
+                        } 
+                    }
+
+                    String idValues = idTypeAndValuesArray[1];
+                    String[] idValuesArray = idValues.split(",");
+                    // If there are multiple values separated by comma (value1,value2), put those to separate array
+                    List<String> idValuesAsArray = new ArrayList<String>();  
+                    for (String idValue : idValuesArray) {
+                        idValuesAsArray.add(idValue);
+                    }
+            
+                    // Add the some_other_id and its values (value1,value2) to transaction
+                    transaction.addIdsByTypeKey(idType, idValuesAsArray);
+                }
+            }
+        }
+    }
+
     private void processTransaction(MessageContext context, Transaction transaction) {
         if(transaction == null) { return; }
-        addFieldsToTransaction(transaction);
 
         // Dynamic operation handling. If Dynamic operation is given. it will override any other style of giving the operation name           
-        // The static value of operation handlig is doen prio of this. So we only check do we need to override it 
+        // The static value of operation handlig is doen prio of this by validateOrSetAinoOperationName. So we only check do we need to override it 
         if (this.getDynamicOperation() != null) {
             transaction.setOperationKey(processDynamicOperation(context));
+        }  
+
+        // If PayloadType is given as dynamic expression. Process it here. 
+        if (this.getDynamicPayloadType() != null) {
+            transaction.setPayloadTypeKey(processDynamicPayloadType(context));
+        } else {
+            // Static value was used 
+            transaction.setPayloadTypeKey(this.payloadType);
         } 
-                
+
         // status atribute handling moved to here since it can be dynamically defined          
         if (this.getDynamicStatus() != null) {
             transaction.setStatus(processDynamicStatus(context));
@@ -260,9 +319,6 @@ public class AinoMediator extends AbstractMediator {
         return this.dataFields.doesNotContain(prop.getName());
     }
 
-    private void addFieldsToTransaction(Transaction transaction) {
-        transaction.setPayloadTypeKey(this.payloadType);
-    }
 
     private Transaction createTransaction(MessageContext context) {
 
@@ -490,7 +546,7 @@ public class AinoMediator extends AbstractMediator {
                 // NOTE we add the UnKnown application name dynamically if it does not yet exist.                          
                 String origOperationKey = operationKey;
                 operationKey = UNKNOWN_DYNAMIC_OPERATION;
-                if (!ainoAgent.applicationExists(operationKey)) {
+                if (!ainoAgent.operationExists(operationKey)) {
                     ainoAgent.getAgentConfig().getOperations().addEntry(UNKNOWN_DYNAMIC_OPERATION, UNKNOWN_DYNAMIC_OPERATION);
                 }   
                 StringBuilder sb = new StringBuilder("Error while resolving the dynamic operation ");
@@ -754,6 +810,109 @@ public class AinoMediator extends AbstractMediator {
      */
     public String getPayloadType() {
         return this.payloadType;
+    }
+
+    public  SynapseXPath getDynamicPayloadType(){
+        return this.dynamicPayloadType;
+    }
+
+    public void setDynamicPayloadType(SynapseXPath xpath){
+        this.dynamicPayloadType = xpath;
+    }
+
+
+    protected String processDynamicPayloadType(MessageContext context){
+        SynapseXPath expression = this.dynamicPayloadType;
+        String payloadTypeKey = null;
+        Boolean payloadTypeKeyExist = false;
+        if (expression != null) {
+            try {
+                Object evaluationResult = expression.evaluate(context);
+                if (evaluationResult != null){
+                    payloadTypeKey = getExpressionValue(evaluationResult);
+                    if (ainoAgent.payloadTypeExists(payloadTypeKey)) {
+                        payloadTypeKeyExist = true;
+                        return payloadTypeKey;
+                    }                    
+                }
+            } catch (JaxenException e) {
+                StringBuilder sb = new StringBuilder("Error while resolving the dynamic payloadType  ");
+                sb.append(" XPath expression: ").append(expression.toString());
+                sb.append(" Exception message: ").append(e.getMessage());
+                log.warn(sb.toString(), e);
+            }
+            if (payloadTypeKeyExist == false){
+                // The dynamic payloadType name is NOT in the configs OR the Xpath was corrupted. 
+                // So lets use UnKnown payloadType name
+                // NOTE we add the UnKnown payloadType name dynamically if it does not yet exist.                          
+                String origPayloadTypeKey = payloadType;
+                payloadType = UNKNOWN_DYNAMIC_PAYLOADTYPE;
+                if (!ainoAgent.payloadTypeExists(payloadTypeKey)) {
+                    ainoAgent.getAgentConfig().getPayloadTypes().addEntry(payloadType, payloadType);
+                }   
+                StringBuilder sb = new StringBuilder("Error while resolving the dynamic payloadType ");
+                sb.append(" using XPath expression: ").append(expression.toString());
+                sb.append(" Exception message: payloadType does not exist in config, name of payloadType: ").append(origPayloadTypeKey).append(" Doing fallback and using UnKnown as payloadType name");
+                log.warn(sb.toString());                                     
+            }
+        }
+        return payloadTypeKey;
+    }
+
+    public String getMultiids() {
+        return this.multiids;
+    }
+    public void setMultiids(String multiidsValue) {
+        this.multiids = multiidsValue;
+    }
+
+
+    public  SynapseXPath getDynamicMultiids(){
+        return this.dynamicMultiids;
+    }
+
+    public void setDynamicMultiids(SynapseXPath xpath){
+        this.dynamicMultiids = xpath;
+    }
+
+
+    protected String processDynamicMultiids(MessageContext context){
+        SynapseXPath expression = this.dynamicMultiids;
+        String multiidsKey = null;
+        Boolean multiidsKeyExist = false;
+        if (expression != null) {
+            try {
+                Object evaluationResult = expression.evaluate(context);
+                if (evaluationResult != null){
+                    multiidsKey = getExpressionValue(evaluationResult);
+                    multiidsKeyExist = true;
+//                    if (ainoAgent.MultiidsExists(payloadTypeKey)) {
+//                        payloadTypeKeyExist = true;
+//                        return payloadType;
+//                    }                    
+                }
+            } catch (JaxenException e) {
+                StringBuilder sb = new StringBuilder("Error while resolving the dynamic Multiids  ");
+                sb.append(" XPath expression: ").append(expression.toString());
+                sb.append(" Exception message: ").append(e.getMessage());
+                log.warn(sb.toString(), e);
+            }
+            // if (multiidsKeyExist == false){
+            //     // The dynamic payloadType name is NOT in the configs OR the Xpath was corrupted. 
+            //     // So lets use UnKnown payloadType name
+            //     // NOTE we add the UnKnown payloadType name dynamically if it does not yet exist.                          
+            //     String origMultiidsKey = multiidsKey;
+            //     payloadType = UNKNOWN_DYNAMIC_PAYLOADTYPE;
+            //     if (!ainoAgent.payloadTypeExists(payloadTypeKey)) {
+            //         ainoAgent.getAgentConfig().getPayloadTypes().addEntry(payloadType, payloadType);
+            //     }   
+            //     StringBuilder sb = new StringBuilder("Error while resolving the dynamic payloadType ");
+            //     sb.append(" using XPath expression: ").append(expression.toString());
+            //     sb.append(" Exception message: payloadType does not exist in config, name of payloadType: ").append(origPayloadTypeKey).append(" Doing fallback and using UnKnown as payloadType name");
+            //     log.warn(sb.toString());                                     
+            // }
+        }
+        return multiidsKey;
     }
 
     /**

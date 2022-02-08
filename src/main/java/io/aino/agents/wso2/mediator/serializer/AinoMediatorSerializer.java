@@ -74,12 +74,12 @@ public class AinoMediatorSerializer extends AbstractMediatorSerializer {
         addOperationToElement(ainoMediator, logElement);
         addMessageToElement(ainoMediator, logElement);
         addIdsToElement(ainoMediator, logElement);
+        addMultiidsToElement(ainoMediator, logElement);
         addFromApplicationToElement(ainoMediator, logElement);
         addToApplicationToElement(ainoMediator, logElement);
         addPayloadTypeToElement(ainoMediator, logElement);
         addPropertiesToElement(ainoMediator, logElement);
         addSeparatorToElement(ainoMediator, logElement);
-
         return logElement;
     }
 
@@ -191,17 +191,34 @@ public class AinoMediatorSerializer extends AbstractMediatorSerializer {
         logElement.addChild(operationElement);
     }
 
-    private void addPayloadTypeToElement(AinoMediator ainoMediator, OMElement logElement) {
-        String payloadType = ainoMediator.getPayloadType();
-
-        if(null == payloadType) {
+    private void addMultiidsToElement(AinoMediator ainoMediator, OMElement logElement) {
+        if(ainoMediator.getMultiids() == null && ainoMediator.getDynamicMultiids() == null){
             return;
         }
+        OMElement multiidsElement = fac.createOMElement(MULTIIDS_TAG_NAME, synNS);
+        if (ainoMediator.getDynamicMultiids() != null) {
+            SynapseXPathSerializer.serializeXPath(ainoMediator.getDynamicMultiids(), multiidsElement, ATT_EXPRESSION_Q.getLocalPart());
+        } else {
+            String multiids = ainoMediator.getMultiids();
+            multiidsElement.addAttribute(ATT_VALUE_Q.getLocalPart(), multiids, null);
+        }
 
-        OMElement payloadElement = fac.createOMElement(PAYLOAD_TAG_NAME, synNS);
-        payloadElement.addAttribute(PAYLOAD_TYPE_ATT_NAME, payloadType, null);
+        logElement.addChild(multiidsElement);
+    }
 
-        logElement.addChild(payloadElement);
+    private void addPayloadTypeToElement(AinoMediator ainoMediator, OMElement logElement) {
+        if(ainoMediator.getPayloadType() == null && ainoMediator.getDynamicPayloadType() == null){
+            return;
+        }
+        OMElement payloadTypeElement = fac.createOMElement(PAYLOAD_TAG_NAME, synNS);
+        if (ainoMediator.getDynamicPayloadType() != null) {
+            SynapseXPathSerializer.serializeXPath(ainoMediator.getDynamicPayloadType(), payloadTypeElement, ATT_EXPRESSION_Q.getLocalPart());
+        } else {
+            String payloadType = ainoMediator.getPayloadType();
+            payloadTypeElement.addAttribute(ATT_KEY_Q.getLocalPart(), payloadType, null);
+        }
+
+        logElement.addChild(payloadTypeElement);
     }
 
     private void addStatusToElement(AinoMediator ainoMediator, OMElement logElement) {
