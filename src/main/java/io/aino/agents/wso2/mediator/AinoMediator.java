@@ -847,7 +847,7 @@ public class AinoMediator extends AbstractMediator {
                 // NOTE we add the UnKnown payloadType name dynamically if it does not yet exist.                          
                 String origPayloadTypeKey = payloadType;
                 payloadType = UNKNOWN_DYNAMIC_PAYLOADTYPE;
-                if (!ainoAgent.payloadTypeExists(payloadTypeKey)) {
+                if (!ainoAgent.payloadTypeExists(payloadType)) {
                     ainoAgent.getAgentConfig().getPayloadTypes().addEntry(payloadType, payloadType);
                 }   
                 StringBuilder sb = new StringBuilder("Error while resolving the dynamic payloadType ");
