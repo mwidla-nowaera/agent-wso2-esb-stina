@@ -59,6 +59,12 @@ public class AinoMediatorConfigConstants {
     public static final String CONFIG_ADDRESS_TAG_NAME = "address";
     public static final String CONFIG_SEND_TAG_NAME = "send";
 
+    public static final String CONFIG_ELASTICSEARCH_TAG_NAME = "elasticSearch";
+
+    public static final String CONFIG_ELASTICSEARCH_URI_ATT_NAME = "uri";
+
+    public static final String CONFIG_ELASTICSEARCH_INDEXNAME_ATT_NAME = "indexName";
+
     public static final String CONFIG_ENABLED_ATT_NAME = "enabled";
     public static final String CONFIG_URI_ATT_NAME = "uri";
     public static final String CONFIG_APIKEY_ATT_NAME = "apiKey";
@@ -91,6 +97,12 @@ public class AinoMediatorConfigConstants {
     public static final QName CONFIG_AINO_LOGGER_SERVICE_Q = new QName(CONFIG_AINO_LOGER_SERVICE_TAG_NAME);
     public static final QName CONFIG_ADDRESS_Q = new QName(CONFIG_ADDRESS_TAG_NAME);
     public static final QName CONFIG_SEND_Q = new QName(CONFIG_SEND_TAG_NAME);
+
+    public static final QName CONFIG_ELASTICSEARCH_Q = new QName(CONFIG_ELASTICSEARCH_TAG_NAME);
+
+    public static final QName CONFIG_ELASTICSEARCH_URI_Q = new QName(CONFIG_ELASTICSEARCH_URI_ATT_NAME);
+
+    public static final QName CONFIG_ELASTICSEARCH_INDEX_NAME = new QName(CONFIG_ELASTICSEARCH_INDEXNAME_ATT_NAME);
 
     public static final QName CONFIG_ENABLED_ATT_Q = new QName(CONFIG_ENABLED_ATT_NAME);
     public static final QName CONFIG_URI_ATT_Q = new QName(CONFIG_URI_ATT_NAME);
