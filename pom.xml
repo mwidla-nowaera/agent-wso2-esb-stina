@@ -25,6 +25,7 @@
                         <Bundle-Vendor>Mystes Oy</Bundle-Vendor>
                         <Bundle-Description>${project.description}</Bundle-Description>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package>io.aino.agents.wso2.mediator.*</Export-Package>
                         <Import-Package>
                             !javax.xml.namespace,
                             com.fasterxml.jackson.annotation,
