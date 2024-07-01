@@ -65,6 +65,10 @@ public class AinoMediatorConfigConstants {
 
     public static final String CONFIG_ELASTICSEARCH_INDEXNAME_ATT_NAME = "indexName";
 
+    public static final String CONFIG_ELASTICSEARCH_PORT_ATT_NAME = "port";
+public static final String CONFIG_ELASTICSEARCH_USERNAME_ATT_NAME = "username";
+public static final String CONFIG_ELASTICSEARCH_PASSWORD_ATT_NAME = "password";
+
     public static final String CONFIG_ENABLED_ATT_NAME = "enabled";
     public static final String CONFIG_URI_ATT_NAME = "uri";
     public static final String CONFIG_APIKEY_ATT_NAME = "apiKey";
@@ -103,6 +107,9 @@ public class AinoMediatorConfigConstants {
     public static final QName CONFIG_ELASTICSEARCH_URI_Q = new QName(CONFIG_ELASTICSEARCH_URI_ATT_NAME);
 
     public static final QName CONFIG_ELASTICSEARCH_INDEX_NAME = new QName(CONFIG_ELASTICSEARCH_INDEXNAME_ATT_NAME);
+    public static final QName CONFIG_ELASTICSEARCH_PORT = new QName(CONFIG_ELASTICSEARCH_PORT_ATT_NAME);
+    public static final QName CONFIG_ELASTICSEARCH_USERNAME = new QName(CONFIG_ELASTICSEARCH_USERNAME_ATT_NAME);
+    public static final QName CONFIG_ELASTICSEARCH_PASSWORD = new QName(CONFIG_ELASTICSEARCH_PASSWORD_ATT_NAME);
 
     public static final QName CONFIG_ENABLED_ATT_Q = new QName(CONFIG_ENABLED_ATT_NAME);
     public static final QName CONFIG_URI_ATT_Q = new QName(CONFIG_URI_ATT_NAME);
